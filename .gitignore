@@ -4,3 +4,5 @@ faces
 ./faces
 dataset
 ./dataset
+face_embeddings.pkl
+./face_embeddings.pkl
