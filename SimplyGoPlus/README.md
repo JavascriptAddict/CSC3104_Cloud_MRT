@@ -29,7 +29,7 @@
 
 ## To run individual services or API Gateway
 - Run as a module from package
-- python -m SimplyGoPlus.accountService
+- python -m SimplyGoPlus.accountService.main
 - uvicorn SimplyGoPlus.apiGateway.main:app --host 0.0.0.0 --port 80
 
 ## Database

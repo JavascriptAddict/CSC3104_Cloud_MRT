@@ -20,7 +20,7 @@ class AccountResponse(Account):
     password: str
     accountStatus: str
     walletId: str | None = None
-
+    
 account = APIRouter()
 
 async def getAccount(accountId) -> None:
@@ -45,7 +45,7 @@ async def get_account(accountId: str):
 @account.post("/accounts/create")
 async def create_account(account: AccountCreation):
     newAccount = await createAccount(account)
-    if newAccount is None or account.userId == "":
+    if newAccount is None or newAccount.userId == "":
         return {"status": 500, "message": "Error occured"}
     return {"message": "Account created", "data": MessageToDict(newAccount)}
 
