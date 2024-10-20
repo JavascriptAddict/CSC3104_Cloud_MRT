@@ -20,6 +20,14 @@
 - SimplyGoPlus folder is the project/package root
 - To run any modules within, start from outside the root folder
 
+## Create virtual environment (Optional)
+- py -m venv myenv
+- .\myenv\scripts\activate
+
+## Install Dependencies
+- Navigate into SimplyGoPlus folder
+- pip install -r requirements.txt
+
 ## To run the API Gateway Service
 - uvicorn SimplyGoPlus.apiGateway.main:app --host 0.0.0.0 --port 80
 
@@ -30,6 +38,7 @@
 ## To run individual services or API Gateway
 - Run as a module from package
 - python -m SimplyGoPlus.accountService.main
+- python -m SimplyGoPlus.transactionService.main
 - uvicorn SimplyGoPlus.apiGateway.main:app --host 0.0.0.0 --port 80
 
 ## Database

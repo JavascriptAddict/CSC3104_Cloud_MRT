@@ -57,7 +57,6 @@ async def serve() -> None:
     await server.start()
     await server.wait_for_termination()
 
-
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.run(serve())

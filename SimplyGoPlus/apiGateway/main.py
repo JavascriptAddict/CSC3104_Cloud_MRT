@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from .api.account import account
+from .api.transaction import transaction
 
 app = FastAPI()
 
@@ -13,3 +14,4 @@ async def root():
     return {"message": "Welcome to SimplyGoPlus"}
 
 app.include_router(account)
+app.include_router(transaction)
