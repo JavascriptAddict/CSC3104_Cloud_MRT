@@ -30,8 +30,12 @@ class TransactionDB:
 
     def getTransaction(self, transactionId):
         sql = '''SELECT * FROM transaction_record where transactionId = ?'''
-        self.cursor.execute(sql, transactionId)
+        self.cursor.execute(sql, (transactionId,))
         row = self.cursor.fetchone()
+
+        if row is None:
+            return None
+
         return row
 
     def deleteTransaction(self, userId):

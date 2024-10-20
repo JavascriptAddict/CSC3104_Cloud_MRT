@@ -8,7 +8,7 @@ import json
 TRANSACTION_SERVICE_ADDRESS = "localhost:50051"
 
 class Transaction(BaseModel):
-    amount: str
+    amount: float
     walletId: str
 
 class TransactionCreation(Transaction):
