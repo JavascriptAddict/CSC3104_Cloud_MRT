@@ -23,31 +23,52 @@ from .db import AccountDB
 accountDB = AccountDB()
 
 class Account(account_pb2_grpc.AccountServicer):
-    async def GetAccount(
-        self,
-        request: account_pb2.AccountRequest,
-        context: grpc.aio.ServicerContext,
-    ) -> account_pb2.AccountResponse:
+    async def GetAccount(self, request: account_pb2.AccountRequest, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
         account = accountDB.getAccount(request.userId)
-        if account is None:
-             return account_pb2.AccountResponse()
-        return account_pb2.AccountResponse(userId=account["userId"], name=account["name"], 
-                                           nric=account["nric"], username=account["username"], 
-                                           password=account["password"], accountStatus=str(account["accountStatus"]), 
-                                           walletId=account["walletId"])
+        if account is False:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("Account not found.")
+            return account_pb2.AccountResponse()
+        return account_pb2.AccountResponse(
+            userId=account["userId"],
+            name=account["name"],
+            nric=account["nric"],
+            username=account["username"],
+            password=account["password"],
+            accountStatus=str(account["accountStatus"]),
+            walletId=account["walletId"]
+        )
 
-    async def CreateAccount(
-            self,
-            request: account_pb2.AccountRequest,
-            context: grpc.aio.ServicerContext,
-        ) -> account_pb2.AccountResponse:
-            newUserId = generateRandomId()
-            newWalletId = generateRandomId()
-            account = accountDB.createAccount((request.name, request.nric, request.username, request.password, True, newUserId, newWalletId))
-            if account is None:
-                return account_pb2.AccountResponse()
-            return account_pb2.AccountResponse(userId=newUserId)
-        
+    async def CreateAccount(self, request: account_pb2.CreateAccountRequest, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
+        newUserId = generateRandomId()
+        newWalletId = generateRandomId()
+        account = accountDB.createAccount(
+            (request.name, request.nric, request.username, request.password, True, newUserId, newWalletId)
+        )
+        if account is False:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details("Account creation failed.")
+            return account_pb2.AccountResponse()
+        return account_pb2.AccountResponse(userId=newUserId)
+    
+    async def UpdateAccount(self, request: account_pb2.UpdateAccountRequest, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
+        updated = accountDB.updateAccount(
+            request.userId, 
+            {"name": request.name, "nric": request.nric, "username": request.username}
+        )
+        if not updated:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("Account not found for update.")
+            return account_pb2.AccountResponse()
+        return account_pb2.AccountResponse(userId=request.userId)
+
+    async def DeleteAccount(self, request: account_pb2.AccountRequest, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
+        deleted = accountDB.deleteAccount(request.userId)
+        if not deleted:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("Account not found for deletion.")
+        return account_pb2.AccountResponse()
+
 async def serve() -> None:
     server = grpc.aio.server()
     account_pb2_grpc.add_AccountServicer_to_server(Account(), server)
