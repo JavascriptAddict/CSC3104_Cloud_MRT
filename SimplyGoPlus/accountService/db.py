@@ -20,7 +20,8 @@ class AccountDB:
             username TEXT NOT NULL,
             password TEXT NOT NULL,
             accountStatus BOOLEAN NOT NULL,
-            walletId TEXT
+            walletId TEXT,
+            walletAmount FLOAT
         )
         """)
         self.conn.commit()
@@ -40,11 +41,11 @@ class AccountDB:
         """Insert a new account into the database."""
         try:
             self.cursor.execute("""
-                INSERT INTO accounts (name, nric, username, password, accountStatus, userId, walletId) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO accounts (name, nric, username, password, accountStatus, userId, walletId, walletAmount) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, createData)
             self.conn.commit()
-            return self.getAccount(createData[-2])  # Return created account using userId
+            return self.getAccount(createData[-3])  # Return created account using userId
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return False

@@ -35,15 +35,16 @@ class Account(account_pb2_grpc.AccountServicer):
             nric=account["nric"],
             username=account["username"],
             password=account["password"],
-            accountStatus=str(account["accountStatus"]),
-            walletId=account["walletId"]
+            accountStatus=account["accountStatus"],
+            walletId=account["walletId"],
+            walletAmount=str(account["walletAmount"])
         )
 
     async def CreateAccount(self, request: account_pb2.CreateAccountRequest, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
         newUserId = generateRandomId()
         newWalletId = generateRandomId()
         account = accountDB.createAccount(
-            (request.name, request.nric, request.username, request.password, True, newUserId, newWalletId)
+            (request.name, request.nric, request.username, request.password, True, newUserId, newWalletId, 0.0)
         )
         if account is False:
             context.set_code(grpc.StatusCode.INTERNAL)

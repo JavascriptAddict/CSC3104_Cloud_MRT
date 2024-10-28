@@ -39,7 +39,7 @@ class UpdateAccountRequest(_message.Message):
     def __init__(self, userId: _Optional[str] = ..., name: _Optional[str] = ..., nric: _Optional[str] = ..., username: _Optional[str] = ..., password: _Optional[str] = ..., accountStatus: _Optional[str] = ...) -> None: ...
 
 class AccountResponse(_message.Message):
-    __slots__ = ("userId", "name", "nric", "username", "password", "accountStatus", "walletId")
+    __slots__ = ("userId", "name", "nric", "username", "password", "accountStatus", "walletId", "walletAmount")
     USERID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     NRIC_FIELD_NUMBER: _ClassVar[int]
@@ -47,14 +47,16 @@ class AccountResponse(_message.Message):
     PASSWORD_FIELD_NUMBER: _ClassVar[int]
     ACCOUNTSTATUS_FIELD_NUMBER: _ClassVar[int]
     WALLETID_FIELD_NUMBER: _ClassVar[int]
+    WALLETAMOUNT_FIELD_NUMBER: _ClassVar[int]
     userId: str
     name: str
     nric: str
     username: str
     password: str
-    accountStatus: str
+    accountStatus: int
     walletId: str
-    def __init__(self, userId: _Optional[str] = ..., name: _Optional[str] = ..., nric: _Optional[str] = ..., username: _Optional[str] = ..., password: _Optional[str] = ..., accountStatus: _Optional[str] = ..., walletId: _Optional[str] = ...) -> None: ...
+    walletAmount: str
+    def __init__(self, userId: _Optional[str] = ..., name: _Optional[str] = ..., nric: _Optional[str] = ..., username: _Optional[str] = ..., password: _Optional[str] = ..., accountStatus: _Optional[int] = ..., walletId: _Optional[str] = ..., walletAmount: _Optional[str] = ...) -> None: ...
 
 class DeleteResponse(_message.Message):
     __slots__ = ("status", "message")

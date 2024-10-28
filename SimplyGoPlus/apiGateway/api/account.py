@@ -6,6 +6,7 @@ import grpc
 import json
 
 ACCOUNT_SERVICE_ADDRESS = "localhost:50051"
+MINIMUM_WALLET_AMOUNT = 2.50
 
 class Account(BaseModel):
     name: str 
@@ -68,10 +69,22 @@ async def deleteAccount(accountId: str) -> None:
         except grpc.aio.AioRpcError as e:
             raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
 
+def checkWalletAmount(data):
+    return float(data) > MINIMUM_WALLET_AMOUNT
+
 @account.get("/accounts/{accountId}")
 async def get_account(accountId: str):
     account = await getAccount(accountId)
     return {"message": "Account retrieved", "data": MessageToDict(account)}
+
+
+@account.get("/accounts/checkwallet/{accountId}")
+async def check_account_wallet(accountId: str):
+    account = await getAccount(accountId)
+    data = MessageToDict(account)
+    walletAmount = data["walletAmount"]
+    walletState = checkWalletAmount(walletAmount)
+    return {"message": walletState, "data": walletAmount}
 
 @account.post("/accounts/create")
 async def create_account(account: AccountCreation):
