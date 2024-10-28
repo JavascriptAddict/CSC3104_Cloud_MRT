@@ -1,0 +1,37 @@
+# account.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: account-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: account
+  template:
+    metadata:
+      labels:
+        app: account
+    spec:
+      containers:
+      - name: account
+        image: <your-dockerhub-username>/account-service:latest
+        ports:
+        - containerPort: 5001
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://myuser:mypassword@postgres-service:5432/mydatabase"  # PostgreSQL connection
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: account-service
+spec:
+  selector:
+    app: account
+  ports:
+  - protocol: TCP
+    port: 5001
+    targetPort: 5001
+  type: ClusterIP

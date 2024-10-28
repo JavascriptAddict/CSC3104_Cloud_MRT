@@ -1,0 +1,37 @@
+# transaction.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transaction-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: transaction
+  template:
+    metadata:
+      labels:
+        app: transaction
+    spec:
+      containers:
+      - name: transaction
+        image: <your-dockerhub-username>/transaction-service:latest
+        ports:
+        - containerPort: 5002
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://myuser:mypassword@postgres-service:5432/mydatabase"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: transaction-service
+spec:
+  selector:
+    app: transaction
+  ports:
+  - protocol: TCP
+    port: 5002
+    targetPort: 5002
+  type: ClusterIP
