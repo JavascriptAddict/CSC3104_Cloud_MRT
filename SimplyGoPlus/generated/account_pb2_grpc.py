@@ -35,9 +35,14 @@ class AccountStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetAccount = channel.unary_unary(
-                '/account.Account/GetAccount',
-                request_serializer=account__pb2.AccountRequest.SerializeToString,
+        self.GetAccountById = channel.unary_unary(
+                '/account.Account/GetAccountById',
+                request_serializer=account__pb2.AccountRequestById.SerializeToString,
+                response_deserializer=account__pb2.AccountResponse.FromString,
+                _registered_method=True)
+        self.GetAccountByUsername = channel.unary_unary(
+                '/account.Account/GetAccountByUsername',
+                request_serializer=account__pb2.AccountRequestByUsername.SerializeToString,
                 response_deserializer=account__pb2.AccountResponse.FromString,
                 _registered_method=True)
         self.UpdateAccount = channel.unary_unary(
@@ -61,7 +66,13 @@ class AccountServicer(object):
     """The Account service definition.
     """
 
-    def GetAccount(self, request, context):
+    def GetAccountById(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAccountByUsername(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -88,9 +99,14 @@ class AccountServicer(object):
 
 def add_AccountServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetAccount': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetAccount,
-                    request_deserializer=account__pb2.AccountRequest.FromString,
+            'GetAccountById': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAccountById,
+                    request_deserializer=account__pb2.AccountRequestById.FromString,
+                    response_serializer=account__pb2.AccountResponse.SerializeToString,
+            ),
+            'GetAccountByUsername': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAccountByUsername,
+                    request_deserializer=account__pb2.AccountRequestByUsername.FromString,
                     response_serializer=account__pb2.AccountResponse.SerializeToString,
             ),
             'UpdateAccount': grpc.unary_unary_rpc_method_handler(
@@ -121,7 +137,7 @@ class Account(object):
     """
 
     @staticmethod
-    def GetAccount(request,
+    def GetAccountById(request,
             target,
             options=(),
             channel_credentials=None,
@@ -134,8 +150,35 @@ class Account(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/account.Account/GetAccount',
-            account__pb2.AccountRequest.SerializeToString,
+            '/account.Account/GetAccountById',
+            account__pb2.AccountRequestById.SerializeToString,
+            account__pb2.AccountResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAccountByUsername(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/account.Account/GetAccountByUsername',
+            account__pb2.AccountRequestByUsername.SerializeToString,
             account__pb2.AccountResponse.FromString,
             options,
             channel_credentials,

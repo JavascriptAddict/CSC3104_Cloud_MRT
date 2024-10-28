@@ -4,11 +4,17 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class AccountRequest(_message.Message):
+class AccountRequestById(_message.Message):
     __slots__ = ("userId",)
     USERID_FIELD_NUMBER: _ClassVar[int]
     userId: str
     def __init__(self, userId: _Optional[str] = ...) -> None: ...
+
+class AccountRequestByUsername(_message.Message):
+    __slots__ = ("username",)
+    USERNAME_FIELD_NUMBER: _ClassVar[int]
+    username: str
+    def __init__(self, username: _Optional[str] = ...) -> None: ...
 
 class CreateAccountRequest(_message.Message):
     __slots__ = ("name", "nric", "username", "password")

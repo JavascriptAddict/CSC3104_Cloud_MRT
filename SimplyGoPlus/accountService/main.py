@@ -23,8 +23,8 @@ from .db import AccountDB
 accountDB = AccountDB()
 
 class Account(account_pb2_grpc.AccountServicer):
-    async def GetAccount(self, request: account_pb2.AccountRequest, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
-        account = accountDB.getAccount(request.userId)
+    async def GetAccountById(self, request: account_pb2.AccountRequestById, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
+        account = accountDB.getAccountById(request.userId)
         if account is False:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("Account not found.")
@@ -40,6 +40,22 @@ class Account(account_pb2_grpc.AccountServicer):
             walletAmount=str(account["walletAmount"])
         )
 
+    async def GetAccountByUsername(self, request: account_pb2.AccountRequestByUsername, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
+        account = accountDB.getAccountByUsername(request.username)
+        if account is False:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("Account not found.")
+            return account_pb2.AccountResponse()
+        return account_pb2.AccountResponse(
+            userId=account["userId"],
+            name=account["name"],
+            nric=account["nric"],
+            username=account["username"],
+            password=account["password"],
+            accountStatus=account["accountStatus"],
+            walletId=account["walletId"],
+            walletAmount=str(account["walletAmount"])
+        )
     async def CreateAccount(self, request: account_pb2.CreateAccountRequest, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
         newUserId = generateRandomId()
         newWalletId = generateRandomId()
@@ -63,7 +79,7 @@ class Account(account_pb2_grpc.AccountServicer):
             return account_pb2.AccountResponse()
         return account_pb2.AccountResponse(userId=request.userId)
 
-    async def DeleteAccount(self, request: account_pb2.AccountRequest, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
+    async def DeleteAccount(self, request: account_pb2.AccountRequestById, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
         deleted = accountDB.deleteAccount(request.userId)
         if not deleted:
             context.set_code(grpc.StatusCode.NOT_FOUND)

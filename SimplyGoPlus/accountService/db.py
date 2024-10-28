@@ -29,9 +29,17 @@ class AccountDB:
     def __del__(self):
         self.conn.close()
     
-    def getAccount(self, userId):
+    def getAccountById(self, userId):
         """Fetch account details by userId."""
         self.cursor.execute("SELECT * FROM accounts WHERE userId = ?", (userId,))
+        result = self.cursor.fetchone()
+        if result:
+            return dict(result)
+        return False
+
+    def getAccountByUsername(self, username):
+        """Fetch account details by userId."""
+        self.cursor.execute("SELECT * FROM accounts WHERE username = ?", (username,))
         result = self.cursor.fetchone()
         if result:
             return dict(result)
@@ -45,7 +53,7 @@ class AccountDB:
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """, createData)
             self.conn.commit()
-            return self.getAccount(createData[-3])  # Return created account using userId
+            return self.getAccountById(createData[-3])  # Return created account using userId
         except sqlite3.Error as e:
             print(f"Database error: {e}")
             return False
