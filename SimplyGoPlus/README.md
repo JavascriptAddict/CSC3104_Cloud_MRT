@@ -20,26 +20,46 @@
 - SimplyGoPlus folder is the project/package root
 - To run any modules within, start from outside the root folder
 
-## Create virtual environment (Optional)
-- py -m venv myenv
-- .\myenv\scripts\activate
+## Create virtual environment
+```shell
+cd .\SimplyGoPlus\
+python -m venv myenv
+cd ..
+```
+#### Activate the Virtual Environment
+- .\SimplyGoPlus\myenv\Scripts\activate
 
 ## Install Dependencies
-- Navigate into SimplyGoPlus folder
-- pip install -r requirements.txt
+```sh
+.\myenv\Scripts\activate
+pip install -r requirements.txt
+```
 
 ## To run the API Gateway Service
-- uvicorn SimplyGoPlus.apiGateway.main:app --host 0.0.0.0 --port 80
+uvicorn SimplyGoPlus.apiGateway.main:app --host 0.0.0.0 --port 80
 
 ## To compile protobuf
-- python -m grpc_tools.protoc -I. --python_out=. --pyi_out=. --grpc_python_out=. account.proto
+- Script automation work in progress
+- Will have to shift the files manually into generated folder for now
+```sh
+python -m grpc_tools.protoc -I. --python_out=. --pyi_out=. --grpc_python_out=. account.proto
+```
 - Make sure to change _pb2_grpc.py files to "from . import account_pb2 as account__pb2" to fix not found error
 
 ## To run individual services or API Gateway
-- Run as a module from package
+#### Activate virtual environment
+- .\SimplyGoPlus\myenv\Scripts\activate
+
+#### Run the codes in 3 separate powershells all in virtual environment
+- Run as a module from package 
 - python -m SimplyGoPlus.accountService.main
 - python -m SimplyGoPlus.transactionService.main
 - uvicorn SimplyGoPlus.apiGateway.main:app --host 0.0.0.0 --port 80
+
+#### To kill a port in cmd
+- netstat -ano | findstr :<port number>
+- taskkill /PID <pid> /F
+- Hope we never have to use this
 
 ## Database
 - Initial use of SQLite for testing

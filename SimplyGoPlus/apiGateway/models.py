@@ -21,3 +21,13 @@ class AccountResponse(Account):
     password: str
     accountStatus: str
     walletId: str | None = None
+
+
+class Transaction(BaseModel):
+    amount: float
+    walletId: str
+
+class TransactionResponse(Transaction):
+    transactionId: str
+    timestamp: str
+

@@ -45,12 +45,23 @@ class Transaction(transaction_pb2_grpc.TransactionServicer):
             transaction = transactionDB.createTransaction((newTransactionId, request.amount, request.walletId, timestamp))
             if transaction is None:
                 return transaction_pb2.TransactionResponse()
-            return transaction_pb2.TransactionResponse(transactionId=newTransactionId, timestamp=timestamp)
-        
+            return transaction_pb2.TransactionResponse(transactionId=newTransactionId, amount = request.amount, walletId=request.walletId, timestamp=timestamp)
+
+    async def UpdateTransaction(self, request: transaction_pb2.UpdateTransactionRequest, context: grpc.aio.ServicerContext) -> transaction_pb2.TransactionResponse:
+        updated = transactionDB.updateTransaction(
+            {"amount": request.amount, "walletId": request.walletId, "transactionId": request.transactionId}
+        )
+        if not updated:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("Transaction not found for update.")
+            return transaction_pb2.TransactionResponse()
+        return transaction_pb2.TransactionResponse(transactionId=request.transactionId, amount=request.amount,walletId=request.walletId)
+
+
 async def serve() -> None:
     server = grpc.aio.server()
     transaction_pb2_grpc.add_TransactionServicer_to_server(Transaction(), server)
-    listen_addr = "[::]:50051"
+    listen_addr = "[::]:50052"
     server.add_insecure_port(listen_addr)
     logging.info("Starting server on %s", listen_addr)
     await server.start()
