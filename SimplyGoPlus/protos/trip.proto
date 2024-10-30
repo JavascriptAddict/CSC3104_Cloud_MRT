@@ -1,0 +1,51 @@
+// Copyright 2015 gRPC authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+
+package trip;
+
+// The Trip service definition.
+service Trip {
+  rpc GetTrip (TripRequest) returns (TripResponse) {}
+  rpc UpdateTrip (UpdateTripRequest) returns (TripResponse) {}
+  rpc CreateTrip (CreateTripRequest) returns (TripResponse) {}
+  rpc DeleteTrip (UpdateTripRequest) returns (DeleteResponse) {}
+}
+message TripRequest {
+  string tripId = 1;
+}
+
+message CreateTripRequest{
+  string accountId = 1;
+  string entry = 2;
+  string exit = 3;
+}
+
+message UpdateTripRequest {
+  string tripId = 1;
+  string entry = 2;
+  string exit = 3;
+}
+
+message TripResponse {
+  string tripId = 1;
+  string accountId = 2;
+  string entry = 3;
+  string exit = 4;
+  string timestamp = 5;
+}
+
+message DeleteResponse{
+}

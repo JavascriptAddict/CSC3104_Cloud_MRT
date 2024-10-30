@@ -21,12 +21,12 @@ async def get_transaction(transactionId: str, currentUser: AccountResponse = Dep
 async def create_transaction(transaction: Transaction, currentUser: AccountResponse = Depends(getCurrentUser)):
     newTransaction = await createTransaction(transaction)
     if newTransaction is None or newTransaction.transactionId == "":
-        return {"status": 500, "message": "Error occured"}
+        return {"status": 500, "message": "Error occurred"}
     return {"message": "Transaction created", "data": MessageToDict(newTransaction)}
 
 @transaction.put("/transactions/update/{transactionId}")
 async def update_transaction(transactionId: str, transaction: Transaction, currentUser: AccountResponse = Depends(getCurrentUser)):
     updatedTransaction = await updateTransaction(transactionId, transaction)
     if updatedTransaction is None:
-        return {"status": 500, "message": "Error occured"}
+        return {"status": 500, "message": "Error occurred"}
     return  {"message": "Transaction updated", "data": MessageToDict(updatedTransaction)}

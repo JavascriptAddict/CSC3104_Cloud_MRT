@@ -31,3 +31,15 @@ class TransactionResponse(Transaction):
     transactionId: str
     timestamp: str
 
+class Trip(BaseModel):
+    entry: str
+    exit: str | None = None
+
+class TripCreation(Trip):
+    accountId: str
+
+class TripResponse(Trip):
+    tripId: str
+    accountId: str
+    timestamp: str
+
