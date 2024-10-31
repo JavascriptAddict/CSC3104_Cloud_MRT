@@ -2,24 +2,70 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
 function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  /* const [username, setusername] = useState('');
+  const [password, setPassword] = useState(''); */
+  const [userLogin, setUserLogin] = useState({
+    username: '',
+    password: '',
+  });
   const [loginError, setLoginError] = useState('');
   const [loginSuccess, setLoginSuccess] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = () => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUserLogin((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleLogin = async () => {
     setLoginError('');
     setLoginSuccess('');
 
-    if (email === 'hi' && password === 'hi') {
+    /* if (username === 'hi' && password === 'hi') {
       setLoginSuccess('Login successful! Redirecting...');
       setTimeout(() => {
         navigate('/profile');
       }, 1500);
     } else {
       setLoginError('Invalid credentials. Please try again.');
+    } */
+
+    const {username, password} = userLogin;
+    if (!username || !password) {
+      setLoginError('Please fill in all the fields.');
+      return;
     }
+
+    const newForm = new URLSearchParams();
+    newForm.append('username', username);
+    newForm.append('password', password);
+
+    try {
+      const response = await fetch('http://localhost/token', { 
+          method: 'POST',
+          body: newForm,
+          headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+          },
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.detail);
+      }
+
+      const data = await response.json();
+      setLoginSuccess(data.message);
+      
+
+      // Redirect or handle success
+      
+      navigate('/profile');
+      
+    } catch (error) {
+      setLoginError('Sign up failed: ' + error.message);
+    }
+
   };
 
   return (
@@ -29,22 +75,24 @@ function LoginPage() {
           Welcome to SMRT
         </h1>
 
-        {/* Email Input */}
+        {/* username Input */}
         <input
-          type="email"
-          placeholder="Email"
+          type="username"
+          name='username'
+          placeholder="Username"
           className="block w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={userLogin.username}
+          onChange={handleChange}
         />
 
         {/* Password Input */}
         <input
           type="password"
+          name='password'
           placeholder="Password"
           className="block w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={userLogin.password}
+          onChange={handleChange}
         />
 
         {/* Login Button */}

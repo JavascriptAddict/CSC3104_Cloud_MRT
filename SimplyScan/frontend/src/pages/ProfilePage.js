@@ -5,8 +5,9 @@ function ProfilePage() {
   // Initial user info, could be fetched from an API
   const [userInfo, setUserInfo] = useState({
     name: 'John Doe',
-    email: 'johndoe@example.com',
-    phone: '123-456-7890',
+    nric: 'johndoe@example.com',
+    username: 'johndoe',
+    password: '123-456-7890',
   });
 
   const [image, setImage] = useState(null);
@@ -59,8 +60,9 @@ function ProfilePage() {
         <div className="mb-8 p-6 bg-white rounded-lg shadow-lg">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">User Information</h2>
           <p className="mb-2"><strong>Name:</strong> {userInfo.name}</p>
-          <p className="mb-2"><strong>Email:</strong> {userInfo.email}</p>
-          <p className="mb-4"><strong>Phone:</strong> {userInfo.phone}</p>
+          <p className="mb-2"><strong>NRIC:</strong> {userInfo.nric}</p>
+          <p className="mb-2"><strong>Username:</strong> {userInfo.username}</p>
+          <p className="mb-4"><strong>Phone:</strong> {userInfo.password}</p>
         </div>
 
         {/* Profile Image Upload */}

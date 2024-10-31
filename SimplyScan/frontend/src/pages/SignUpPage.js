@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
 function SignUpPage() {
   const [userInfo, setUserInfo] = useState({
     name: '',
-    email: '',
-    phone: '',
-    cardDetails: '',
+    nric: '',
+    username: '',
+    password: '',
   });
 
   const [image, setImage] = useState(null);
@@ -26,14 +27,14 @@ function SignUpPage() {
     }
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     // Clear messages
     setError('');
     setSuccessMessage('');
 
     // Validate inputs
-    const { name, email, phone, cardDetails } = userInfo;
-    if (!name || !email || !phone || !cardDetails) {
+    const { name, nric, username, password } = userInfo;
+    if (!name || !nric || !username || !password) {
       setError('Please fill in all the fields.');
       return;
     }
@@ -42,11 +43,43 @@ function SignUpPage() {
       return;
     }
 
+    var newForm = {
+      "name": name,
+      "nric": nric,
+      "username": username,
+      "password": password,
+    }
+
+
+    try {
+      const response = await fetch('http://localhost/accounts/create', {
+          method: 'POST',
+          body: JSON.stringify(newForm),
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
+
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      setSuccessMessage(data.message);
+
+      // Redirect or handle success
+      setTimeout(() => {
+          navigate('/profile');
+      }, 1500);
+    } catch (error) {
+        setError('Sign up failed: ' + error.message);
+    }
+
     // Mock sign-up logic
-    setSuccessMessage('Sign up successful! Redirecting...');
+    /* setSuccessMessage('Sign up successful! Redirecting...');
     setTimeout(() => {
       navigate('/profile');
-    }, 1500);
+    }, 1500); */
   };
 
   return (
@@ -63,26 +96,26 @@ function SignUpPage() {
           className="block w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={userInfo.email}
+          type="nric"
+          name="nric"
+          placeholder="Nric"
+          value={userInfo.nric}
           onChange={handleChange}
           className="block w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
           type="text"
-          name="phone"
-          placeholder="Phone"
-          value={userInfo.phone}
+          name="username"
+          placeholder="Username"
+          value={userInfo.username}
           onChange={handleChange}
           className="block w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <input
-          type="text"
-          name="cardDetails"
-          placeholder="Card Details"
-          value={userInfo.cardDetails}
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={userInfo.password}
           onChange={handleChange}
           className="block w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
