@@ -51,7 +51,7 @@ class VisionDB:
                 UPDATE visions 
                 SET image = ?
                 WHERE userId = ?
-            """, (updateData['image']))
+            """, (updateData['image'], userId))
             self.conn.commit()
             return self.cursor.rowcount > 0  # True if the vision was updated
         except sqlite3.Error as e:
