@@ -33,12 +33,18 @@ class TripDB:
         sql = '''SELECT * FROM trip_record where tripId = ?'''
         self.cursor.execute(sql, (tripId,))
         row = self.cursor.fetchone()
-
         if row is None:
             return None
-
         return row
 
+    def getTripByUserId(self, userId):
+        sql = '''SELECT * FROM trip_record where accountId = ? AND exit = ""'''
+        self.cursor.execute(sql, (userId,))
+        row = self.cursor.fetchone()
+        if row is None:
+            return None
+        return row
+    
     def deleteTrip(self, userId):
         #I don't think it's right to be able to delete trip records
         pass

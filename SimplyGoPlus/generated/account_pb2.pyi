@@ -44,6 +44,14 @@ class UpdateAccountRequest(_message.Message):
     accountStatus: str
     def __init__(self, userId: _Optional[str] = ..., name: _Optional[str] = ..., nric: _Optional[str] = ..., username: _Optional[str] = ..., password: _Optional[str] = ..., accountStatus: _Optional[str] = ...) -> None: ...
 
+class UpdateWallet(_message.Message):
+    __slots__ = ("userId", "amount")
+    USERID_FIELD_NUMBER: _ClassVar[int]
+    AMOUNT_FIELD_NUMBER: _ClassVar[int]
+    userId: str
+    amount: str
+    def __init__(self, userId: _Optional[str] = ..., amount: _Optional[str] = ...) -> None: ...
+
 class AccountResponse(_message.Message):
     __slots__ = ("userId", "name", "nric", "username", "password", "accountStatus", "walletId", "walletAmount")
     USERID_FIELD_NUMBER: _ClassVar[int]

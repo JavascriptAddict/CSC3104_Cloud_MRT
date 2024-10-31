@@ -19,6 +19,7 @@ package trip;
 // The Trip service definition.
 service Trip {
   rpc GetTrip (TripRequest) returns (TripResponse) {}
+  rpc GetTripByUserId (TripByUserIdRequest) returns (TripResponse) {}
   rpc UpdateTrip (UpdateTripRequest) returns (TripResponse) {}
   rpc CreateTrip (CreateTripRequest) returns (TripResponse) {}
   rpc DeleteTrip (UpdateTripRequest) returns (DeleteResponse) {}
@@ -26,13 +27,14 @@ service Trip {
 message TripRequest {
   string tripId = 1;
 }
-
+message TripByUserIdRequest{
+  string userId = 1;
+}
 message CreateTripRequest{
   string accountId = 1;
   string entry = 2;
   string exit = 3;
 }
-
 message UpdateTripRequest {
   string tripId = 1;
   string entry = 2;

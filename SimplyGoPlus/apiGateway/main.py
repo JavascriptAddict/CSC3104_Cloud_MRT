@@ -24,6 +24,7 @@ async def root():
 @app.post("/token", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await getAccountByUsername(form_data.username)
+    print(user)
     if not user or not verifyPassword(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

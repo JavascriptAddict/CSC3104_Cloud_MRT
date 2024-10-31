@@ -21,6 +21,7 @@ service Account {
   rpc GetAccountById (AccountRequestById) returns (AccountResponse) {}
   rpc GetAccountByUsername (AccountRequestByUsername) returns (AccountResponse) {}
   rpc UpdateAccount (UpdateAccountRequest) returns (AccountResponse) {}
+  rpc UpdateWalletAmount (UpdateWallet) returns (UpdateWallet) {}
   rpc CreateAccount (CreateAccountRequest) returns (AccountResponse) {}
   rpc DeleteAccount (UpdateAccountRequest) returns (DeleteResponse) {}
 }
@@ -43,6 +44,10 @@ message UpdateAccountRequest {
   string username = 4;
   string password = 5;
   string accountStatus = 6;
+}
+message UpdateWallet {
+  string userId = 1;
+  string amount = 2;
 }
 message AccountResponse {
   string userId = 1;

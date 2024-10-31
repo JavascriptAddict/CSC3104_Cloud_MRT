@@ -28,15 +28,13 @@ class TransactionDB:
         self.conn.commit()
         return self.cursor.rowcount #return the number of rows affected
 
-    def getTransaction(self, transactionId):
-        sql = '''SELECT * FROM transaction_record where transactionId = ?'''
-        self.cursor.execute(sql, (transactionId,))
-        row = self.cursor.fetchone()
-
-        if row is None:
+    def getTransaction(self, userId):
+        sql = '''SELECT * FROM transaction_record where accountId = ?'''
+        self.cursor.execute(sql, (userId,))
+        rows = self.cursor.fetchall()
+        if rows is None:
             return None
-
-        return row
+        return rows
 
     def deleteTransaction(self, userId):
         #I don't think it's right to be able to delete transaction records

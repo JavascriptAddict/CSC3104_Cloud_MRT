@@ -18,13 +18,13 @@ package transaction;
 
 // The Transaction service definition.
 service Transaction {
-  rpc GetTransaction (TransactionRequest) returns (TransactionResponse) {}
+  rpc GetTransaction (TransactionRequest) returns (TransactionList) {}
   rpc UpdateTransaction (UpdateTransactionRequest) returns (TransactionResponse) {}
   rpc CreateTransaction (CreateTransactionRequest) returns (TransactionResponse) {}
   rpc DeleteTransaction (UpdateTransactionRequest) returns (DeleteResponse) {}
 }
 message TransactionRequest {
-  string transactionId = 1;
+  string userId = 1;
 }
 message CreateTransactionRequest{
   float amount = 1;
@@ -41,6 +41,10 @@ message TransactionResponse {
   float amount = 2;
   string accountId = 3;
   string timestamp = 4;
+}
+
+message TransactionList{
+  repeated TransactionResponse transactions = 1;
 }
 
 message DeleteResponse{

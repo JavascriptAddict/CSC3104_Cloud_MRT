@@ -10,6 +10,12 @@ class TripRequest(_message.Message):
     tripId: str
     def __init__(self, tripId: _Optional[str] = ...) -> None: ...
 
+class TripByUserIdRequest(_message.Message):
+    __slots__ = ("userId",)
+    USERID_FIELD_NUMBER: _ClassVar[int]
+    userId: str
+    def __init__(self, userId: _Optional[str] = ...) -> None: ...
+
 class CreateTripRequest(_message.Message):
     __slots__ = ("accountId", "entry", "exit")
     ACCOUNTID_FIELD_NUMBER: _ClassVar[int]

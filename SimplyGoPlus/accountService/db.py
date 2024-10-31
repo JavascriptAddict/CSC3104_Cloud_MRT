@@ -72,6 +72,20 @@ class AccountDB:
             print(f"Database error: {e}")
             return False
 
+    def updateWallet(self, userId, amount):
+        """Update wallet information for the given userId."""
+        try:
+            self.cursor.execute("""
+                UPDATE accounts 
+                SET walletAmount = ?
+                WHERE userId = ?
+            """, (amount, userId))
+            self.conn.commit()
+            return self.cursor.rowcount > 0  # True if the account was updated
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return False
+        
     def deleteAccount(self, userId):
         """Delete account by userId."""
         try:
