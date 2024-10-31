@@ -132,6 +132,15 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+dlibenv/
+.dlibenv/
+dlibvenv/
+.dlibvenv/
+faces/
+.faces/
+.dataset/
+dataset/
+SimplyScan/frontend/node_modules/
 
 # Spyder project settings
 .spyderproject
