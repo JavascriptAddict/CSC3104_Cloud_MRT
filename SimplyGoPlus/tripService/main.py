@@ -28,16 +28,17 @@ class Trip(trip_pb2_grpc.TripServicer):
         self,
         request: trip_pb2.TripRequest,
         context: grpc.aio.ServicerContext,
-    ) -> trip_pb2.TripResponse:
-        trip = tripDB.getTrip(request.tripId)
-        if trip is None:
-             return trip_pb2.TripResponse()
-        return trip_pb2.TripResponse(tripId=trip["tripId"], accountId=trip["accountId"], entry=trip["entry"],
-                                           exit=trip["exit"], timestamp=trip["timestamp"])
+    ) -> trip_pb2.TripList:
+        rows = tripDB.getTrip(request.userId)
+        if rows is None:
+            return trip_pb2.TripList()
+        trips = [trip_pb2.TripResponse(tripId=row["tripId"], accountId=row["accountId"], entry=row["entry"],
+                                           exit=row["exit"], timestamp=row["timestamp"]) for row in rows]
+        return trip_pb2.TripList(trips=trips)
 
     async def GetTripByUserId(
         self,
-        request: trip_pb2.TripByUserIdRequest,
+        request: trip_pb2.TripRequest,
         context: grpc.aio.ServicerContext,
     ) -> trip_pb2.TripResponse:
         trip = tripDB.getTripByUserId(request.userId)

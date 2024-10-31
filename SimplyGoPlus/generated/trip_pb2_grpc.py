@@ -38,11 +38,11 @@ class TripStub(object):
         self.GetTrip = channel.unary_unary(
                 '/trip.Trip/GetTrip',
                 request_serializer=trip__pb2.TripRequest.SerializeToString,
-                response_deserializer=trip__pb2.TripResponse.FromString,
+                response_deserializer=trip__pb2.TripList.FromString,
                 _registered_method=True)
         self.GetTripByUserId = channel.unary_unary(
                 '/trip.Trip/GetTripByUserId',
-                request_serializer=trip__pb2.TripByUserIdRequest.SerializeToString,
+                request_serializer=trip__pb2.TripRequest.SerializeToString,
                 response_deserializer=trip__pb2.TripResponse.FromString,
                 _registered_method=True)
         self.UpdateTrip = channel.unary_unary(
@@ -102,11 +102,11 @@ def add_TripServicer_to_server(servicer, server):
             'GetTrip': grpc.unary_unary_rpc_method_handler(
                     servicer.GetTrip,
                     request_deserializer=trip__pb2.TripRequest.FromString,
-                    response_serializer=trip__pb2.TripResponse.SerializeToString,
+                    response_serializer=trip__pb2.TripList.SerializeToString,
             ),
             'GetTripByUserId': grpc.unary_unary_rpc_method_handler(
                     servicer.GetTripByUserId,
-                    request_deserializer=trip__pb2.TripByUserIdRequest.FromString,
+                    request_deserializer=trip__pb2.TripRequest.FromString,
                     response_serializer=trip__pb2.TripResponse.SerializeToString,
             ),
             'UpdateTrip': grpc.unary_unary_rpc_method_handler(
@@ -152,7 +152,7 @@ class Trip(object):
             target,
             '/trip.Trip/GetTrip',
             trip__pb2.TripRequest.SerializeToString,
-            trip__pb2.TripResponse.FromString,
+            trip__pb2.TripList.FromString,
             options,
             channel_credentials,
             insecure,
@@ -178,7 +178,7 @@ class Trip(object):
             request,
             target,
             '/trip.Trip/GetTripByUserId',
-            trip__pb2.TripByUserIdRequest.SerializeToString,
+            trip__pb2.TripRequest.SerializeToString,
             trip__pb2.TripResponse.FromString,
             options,
             channel_credentials,

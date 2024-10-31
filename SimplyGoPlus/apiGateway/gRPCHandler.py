@@ -122,16 +122,16 @@ async def createTrip(trip: TripCreation) -> trip_pb2.TripResponse:
         except grpc.aio.AioRpcError as e:
             raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
 
-async def getTrip(tripId: str) -> trip_pb2.TripResponse:
+async def getTrips(userId: str) -> trip_pb2.TripResponse:
     try:
-        response = await trip_stub.GetTrip(trip_pb2.TripRequest(tripId=tripId))
+        response = await trip_stub.GetTrip(trip_pb2.TripRequest(userId=userId))
         return response
     except grpc.aio.AioRpcError as e:
         raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
 
 async def getTripByUserId(userId: str) -> trip_pb2.TripResponse:
     try:
-        response = await trip_stub.GetTripByUserId(trip_pb2.TripByUserIdRequest(userId=userId))
+        response = await trip_stub.GetTripByUserId(trip_pb2.TripRequest(userId=userId))
         return response
     except grpc.aio.AioRpcError as e:
         raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")

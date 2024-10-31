@@ -1,16 +1,11 @@
+from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class TripRequest(_message.Message):
-    __slots__ = ("tripId",)
-    TRIPID_FIELD_NUMBER: _ClassVar[int]
-    tripId: str
-    def __init__(self, tripId: _Optional[str] = ...) -> None: ...
-
-class TripByUserIdRequest(_message.Message):
     __slots__ = ("userId",)
     USERID_FIELD_NUMBER: _ClassVar[int]
     userId: str
@@ -49,6 +44,12 @@ class TripResponse(_message.Message):
     exit: str
     timestamp: str
     def __init__(self, tripId: _Optional[str] = ..., accountId: _Optional[str] = ..., entry: _Optional[str] = ..., exit: _Optional[str] = ..., timestamp: _Optional[str] = ...) -> None: ...
+
+class TripList(_message.Message):
+    __slots__ = ("trips",)
+    TRIPS_FIELD_NUMBER: _ClassVar[int]
+    trips: _containers.RepeatedCompositeFieldContainer[TripResponse]
+    def __init__(self, trips: _Optional[_Iterable[_Union[TripResponse, _Mapping]]] = ...) -> None: ...
 
 class DeleteResponse(_message.Message):
     __slots__ = ()

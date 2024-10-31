@@ -37,16 +37,17 @@ class TripDB:
         return self.cursor.rowcount #return the number of rows affected
 
     def getTrip(self, tripId):
-        sql = '''SELECT * FROM trips where "tripId" = %s'''
+        sql = '''SELECT * FROM trips where "accountId" = %s'''
         self.cursor.execute(sql, (tripId,))
-        row = self.cursor.fetchone()
-        if row is None:
+        rows = self.cursor.fetchall()
+        if rows is None:
             return None
 
         # Convert the timestamp to a string
-        if row["timestamp"] is not None:
-            row["timestamp"] = row["timestamp"].isoformat()  # Convert to string format
-        return row
+        for row in rows:
+            if row["timestamp"] is not None:
+                row["timestamp"] = row["timestamp"].isoformat()  # Convert to string format
+        return rows
 
     def getTripByUserId(self, userId):
         sql = '''SELECT * FROM trips where "accountId" = %s AND (exit = %s)'''
