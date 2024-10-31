@@ -10,23 +10,23 @@ from ..auth import getCurrentUser
 
 transaction = APIRouter()
 
-@transaction.get("/transactions/{transactionId}")
-async def get_transaction(transactionId: str, currentUser: AccountResponse = Depends(getCurrentUser)):
-    transaction = await getTransaction(transactionId)
-    if transaction is None or transaction.transactionId == "":
-        return {"status": 404, "message": "Transaction ID not found"}
-    return {"message": "Transaction retrieved", "data": MessageToDict(transaction)}
+@transaction.get("/transactions")
+async def get_transaction(currentUser: AccountResponse = Depends(getCurrentUser)):
+    transactions = MessageToDict(await getTransaction(currentUser.userId))
+    if len(transactions) < 1:
+        return {"status": 404, "message": "No transactions found"}
+    return {"message": "Transaction retrieved", "data": transactions}
 
-@transaction.post("/transactions/create")
-async def create_transaction(transaction: TransactionCreation, currentUser: AccountResponse = Depends(getCurrentUser)):
-    newTransaction = await createTransaction(transaction)
-    if newTransaction is None or newTransaction.transactionId == "":
-        return {"status": 500, "message": "Error occurred"}
-    return {"message": "Transaction created", "data": MessageToDict(newTransaction)}
+# @transaction.post("/transactions/create")
+# async def create_transaction(transaction: TransactionCreation, currentUser: AccountResponse = Depends(getCurrentUser)):
+#     newTransaction = await createTransaction(transaction)
+#     if newTransaction is None or newTransaction.transactionId == "":
+#         return {"status": 500, "message": "Error occurred"}
+#     return {"message": "Transaction created", "data": MessageToDict(newTransaction)}
 
-@transaction.put("/transactions/update/{transactionId}")
-async def update_transaction(transactionId: str, transaction: Transaction, currentUser: AccountResponse = Depends(getCurrentUser)):
-    updatedTransaction = await updateTransaction(transactionId, transaction)
-    if updatedTransaction is None:
-        return {"status": 500, "message": "Error occurred"}
-    return  {"message": "Transaction updated", "data": MessageToDict(updatedTransaction)}
+# @transaction.put("/transactions/update/{transactionId}")
+# async def update_transaction(transactionId: str, transaction: Transaction, currentUser: AccountResponse = Depends(getCurrentUser)):
+#     updatedTransaction = await updateTransaction(transactionId, transaction)
+#     if updatedTransaction is None:
+#         return {"status": 500, "message": "Error occurred"}
+#     return  {"message": "Transaction updated", "data": MessageToDict(updatedTransaction)}

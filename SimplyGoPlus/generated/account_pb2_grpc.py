@@ -5,7 +5,7 @@ import warnings
 
 from . import account_pb2 as account__pb2
 
-GRPC_GENERATED_VERSION = '1.66.2'
+GRPC_GENERATED_VERSION = '1.67.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -50,6 +50,11 @@ class AccountStub(object):
                 request_serializer=account__pb2.UpdateAccountRequest.SerializeToString,
                 response_deserializer=account__pb2.AccountResponse.FromString,
                 _registered_method=True)
+        self.UpdateWalletAmount = channel.unary_unary(
+                '/account.Account/UpdateWalletAmount',
+                request_serializer=account__pb2.UpdateWallet.SerializeToString,
+                response_deserializer=account__pb2.UpdateWallet.FromString,
+                _registered_method=True)
         self.CreateAccount = channel.unary_unary(
                 '/account.Account/CreateAccount',
                 request_serializer=account__pb2.CreateAccountRequest.SerializeToString,
@@ -84,6 +89,12 @@ class AccountServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def UpdateWalletAmount(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def CreateAccount(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -113,6 +124,11 @@ def add_AccountServicer_to_server(servicer, server):
                     servicer.UpdateAccount,
                     request_deserializer=account__pb2.UpdateAccountRequest.FromString,
                     response_serializer=account__pb2.AccountResponse.SerializeToString,
+            ),
+            'UpdateWalletAmount': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateWalletAmount,
+                    request_deserializer=account__pb2.UpdateWallet.FromString,
+                    response_serializer=account__pb2.UpdateWallet.SerializeToString,
             ),
             'CreateAccount': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateAccount,
@@ -207,6 +223,33 @@ class Account(object):
             '/account.Account/UpdateAccount',
             account__pb2.UpdateAccountRequest.SerializeToString,
             account__pb2.AccountResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateWalletAmount(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/account.Account/UpdateWalletAmount',
+            account__pb2.UpdateWallet.SerializeToString,
+            account__pb2.UpdateWallet.FromString,
             options,
             channel_credentials,
             insecure,

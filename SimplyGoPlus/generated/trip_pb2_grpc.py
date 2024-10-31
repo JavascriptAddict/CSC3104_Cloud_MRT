@@ -38,6 +38,11 @@ class TripStub(object):
         self.GetTrip = channel.unary_unary(
                 '/trip.Trip/GetTrip',
                 request_serializer=trip__pb2.TripRequest.SerializeToString,
+                response_deserializer=trip__pb2.TripList.FromString,
+                _registered_method=True)
+        self.GetTripByUserId = channel.unary_unary(
+                '/trip.Trip/GetTripByUserId',
+                request_serializer=trip__pb2.TripRequest.SerializeToString,
                 response_deserializer=trip__pb2.TripResponse.FromString,
                 _registered_method=True)
         self.UpdateTrip = channel.unary_unary(
@@ -67,6 +72,12 @@ class TripServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetTripByUserId(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def UpdateTrip(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -90,6 +101,11 @@ def add_TripServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetTrip': grpc.unary_unary_rpc_method_handler(
                     servicer.GetTrip,
+                    request_deserializer=trip__pb2.TripRequest.FromString,
+                    response_serializer=trip__pb2.TripList.SerializeToString,
+            ),
+            'GetTripByUserId': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetTripByUserId,
                     request_deserializer=trip__pb2.TripRequest.FromString,
                     response_serializer=trip__pb2.TripResponse.SerializeToString,
             ),
@@ -135,6 +151,33 @@ class Trip(object):
             request,
             target,
             '/trip.Trip/GetTrip',
+            trip__pb2.TripRequest.SerializeToString,
+            trip__pb2.TripList.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetTripByUserId(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/trip.Trip/GetTripByUserId',
             trip__pb2.TripRequest.SerializeToString,
             trip__pb2.TripResponse.FromString,
             options,

@@ -25,8 +25,11 @@ async def getAccountById(accountId: str) -> account_pb2.AccountResponse:
 async def getAccountByUsername(accountUsername: str) -> account_pb2.AccountResponse:
     async with grpc.aio.insecure_channel(ACCOUNT_SERVICE_ADDRESS) as channel:
         stub = account_pb2_grpc.AccountStub(channel)
+        print("here")
         try:
+            print("here2")
             response = await stub.GetAccountByUsername(account_pb2.AccountRequestByUsername(username=accountUsername))
+            print("here3")
             return response
         except grpc.aio.AioRpcError as e:
             raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
@@ -57,8 +60,20 @@ async def updateAccount(accountId: str, account: Account) -> account_pb2.Account
             ))
             return response
         except grpc.aio.AioRpcError as e:
-            raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")\
-                
+            raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
+
+async def updateUserWallet(accountId: str, amount: float) -> account_pb2.UpdateWallet:
+    async with grpc.aio.insecure_channel(ACCOUNT_SERVICE_ADDRESS) as channel:
+        stub = account_pb2_grpc.AccountStub(channel)
+        try:
+            response = await stub.UpdateWalletAmount(account_pb2.UpdateWallet(
+                userId=accountId,
+                amount=str(amount)
+            ))
+            return response
+        except grpc.aio.AioRpcError as e:
+            raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
+                      
 async def deleteAccount(accountId: str) -> None:
     async with grpc.aio.insecure_channel(ACCOUNT_SERVICE_ADDRESS) as channel:
         stub = account_pb2_grpc.AccountStub(channel)
@@ -71,9 +86,9 @@ async def deleteAccount(accountId: str) -> None:
 channel = grpc.aio.insecure_channel(TRANSACTION_SERVICE_ADDRESS)
 transaction_stub = transaction_pb2_grpc.TransactionStub(channel)
 
-async def getTransaction(transactionId: str) -> transaction_pb2.TransactionResponse:
+async def getTransaction(userId: str) -> transaction_pb2.TransactionList:
     try:
-        response = await transaction_stub.GetTransaction(transaction_pb2.TransactionRequest(transactionId=transactionId))
+        response = await transaction_stub.GetTransaction(transaction_pb2.TransactionRequest(userId=userId))
         return response
     except grpc.aio.AioRpcError as e:
         raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
@@ -107,13 +122,20 @@ async def createTrip(trip: TripCreation) -> trip_pb2.TripResponse:
         except grpc.aio.AioRpcError as e:
             raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
 
-async def getTrip(tripId: str) -> trip_pb2.TripResponse:
+async def getTrips(userId: str) -> trip_pb2.TripResponse:
     try:
-        response = await trip_stub.GetTrip(trip_pb2.TripRequest(tripId=tripId))
+        response = await trip_stub.GetTrip(trip_pb2.TripRequest(userId=userId))
         return response
     except grpc.aio.AioRpcError as e:
         raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
 
+async def getTripByUserId(userId: str) -> trip_pb2.TripResponse:
+    try:
+        response = await trip_stub.GetTripByUserId(trip_pb2.TripRequest(userId=userId))
+        return response
+    except grpc.aio.AioRpcError as e:
+        raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
+    
 async def updateTrip(tripId: str, trip: Trip) -> trip_pb2.TripResponse:
     try:
         response = await trip_stub.UpdateTrip(trip_pb2.UpdateTripRequest(

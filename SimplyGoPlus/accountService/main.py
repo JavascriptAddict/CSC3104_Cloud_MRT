@@ -79,6 +79,17 @@ class Account(account_pb2_grpc.AccountServicer):
             return account_pb2.AccountResponse()
         return account_pb2.AccountResponse(userId=request.userId)
 
+    async def UpdateWalletAmount(self, request: account_pb2.UpdateWallet, context: grpc.aio.ServicerContext) -> account_pb2.UpdateWallet:
+        updated = accountDB.updateWallet(
+            request.userId, 
+            request.amount
+        )
+        if not updated:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("Wallet not found for update.")
+            return account_pb2.UpdateWallet()
+        return account_pb2.UpdateWallet(userId=request.userId, amount=request.amount)
+    
     async def DeleteAccount(self, request: account_pb2.AccountRequestById, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
         deleted = accountDB.deleteAccount(request.userId)
         if not deleted:

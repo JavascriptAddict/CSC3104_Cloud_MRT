@@ -28,12 +28,13 @@ class Transaction(transaction_pb2_grpc.TransactionServicer):
         self,
         request: transaction_pb2.TransactionRequest,
         context: grpc.aio.ServicerContext,
-    ) -> transaction_pb2.TransactionResponse:
-        transaction = transactionDB.getTransaction(request.transactionId)
-        if transaction is None:
-             return transaction_pb2.TransactionResponse()
-        return transaction_pb2.TransactionResponse(transactionId=transaction["transactionId"], amount=transaction["amount"],
-                                           accountId=transaction["accountId"], timestamp=transaction["timestamp"])
+    ) -> transaction_pb2.TransactionList:
+        rows = transactionDB.getTransaction(request.userId)
+        if rows is None:
+             return transaction_pb2.TransactionList()
+        transactions = [transaction_pb2.TransactionResponse(transactionId=row["transactionId"], amount=row["amount"],
+                                           accountId=row["accountId"], timestamp=row["timestamp"]) for row in rows]
+        return transaction_pb2.TransactionList(transactions=transactions)
 
     async def CreateTransaction(
             self,
