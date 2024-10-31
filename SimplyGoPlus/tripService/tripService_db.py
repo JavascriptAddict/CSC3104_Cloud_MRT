@@ -49,18 +49,19 @@ class TripDB:
             print(f"Database error: {e}")
             return False
 
-    def getTrip(self, tripId):
+    def getTrip(self, accountId):
         try:
-            sql = '''SELECT * FROM trips where "tripId" = %s'''
-            self.cursor.execute(sql, (tripId,))
-            row = self.cursor.fetchone()
-            if row is None:
+            sql = '''SELECT * FROM trips where "accountId" = %s'''
+            self.cursor.execute(sql, (accountId,))
+            rows = self.cursor.fetchall()
+            if rows is None:
                 return None
 
             # Convert the timestamp to a string
-            if row["timestamp"] is not None:
-                row["timestamp"] = row["timestamp"].isoformat()  # Convert to string format
-            return row
+            for row in rows:
+                if row["timestamp"] is not None:
+                    row["timestamp"] = row["timestamp"].isoformat()
+            return rows
         except psycopg2.DatabaseError as e:
             print(f"Database error: {e}")
             return False

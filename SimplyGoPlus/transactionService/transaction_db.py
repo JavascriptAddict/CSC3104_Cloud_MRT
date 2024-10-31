@@ -41,18 +41,35 @@ class TransactionDB:
         self.conn.commit()
         return self.cursor.rowcount #return the number of rows affected
 
-    def getTransaction(self, transactionId):
-        sql = '''SELECT * FROM transactions WHERE "transactionId" = %s'''
-        self.cursor.execute(sql, (transactionId,))
-        row = self.cursor.fetchone()
+    # def getTransaction(self, transactionId):
+    #     sql = '''SELECT * FROM transactions WHERE "transactionId" = %s'''
+    #     self.cursor.execute(sql, (transactionId,))
+    #     row = self.cursor.fetchone()
+    #
+    #     if row is None:
+    #         return None
+    #
+    #     if row["timestamp"] is not None:
+    #         row["timestamp"] = row["timestamp"].isoformat()  # Convert to string format
+    #
+    #     return row
 
-        if row is None:
-            return None
+    def getTransaction(self, accountId):
+        try:
+            sql = '''SELECT * FROM transactions where "accountId" = %s'''
+            self.cursor.execute(sql, (accountId,))
+            rows = self.cursor.fetchall()
+            if rows is None:
+                return None
 
-        if row["timestamp"] is not None:
-            row["timestamp"] = row["timestamp"].isoformat()  # Convert to string format
-            
-        return row
+            # Convert the timestamp to a string
+            for row in rows:
+                if row["timestamp"] is not None:
+                    row["timestamp"] = row["timestamp"].isoformat()
+            return rows
+        except psycopg2.DatabaseError as e:
+            print(f"Database error: {e}")
+            return False
 
     def deleteTransaction(self, transactionId):
         sql = '''DELETE FROM transactions WHERE "transactionId" = %s'''
