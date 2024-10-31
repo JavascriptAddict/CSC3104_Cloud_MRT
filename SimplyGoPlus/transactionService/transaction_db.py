@@ -8,20 +8,20 @@ class TransactionDB:
         self.conn = sqlite3.connect(path + '/transaction.db')
         self.conn.row_factory = sqlite3.Row
         self.cursor = self.conn.cursor()
-        self.cursor.execute('''CREATE TABLE IF NOT EXISTS transaction_record
+        self.cursor.execute('''CREATE TABLE IF NOT EXISTS transactions
                     (transactionId varchar(255) PRIMARY KEY, 
-                    amount NUMERIC(5, 2), 
+                    amount NUMERIC(5, 2),
                     accountId varchar(255), 
                     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
 
     def createTransaction(self, userObj):
-        sql = '''INSERT INTO transaction_record (transactionId, amount, accountId, timestamp) VALUES(?,?,?,?)'''
+        sql = '''INSERT INTO transactions (transactionId, amount, accountId, timestamp) VALUES(?,?,?,?)'''
         self.cursor.execute(sql, userObj)
         self.conn.commit()
         return self.cursor.lastrowid
 
     def updateTransaction(self, userObj):
-        sql = '''UPDATE transaction_record
+        sql = '''UPDATE transactions
         SET amount = ?
         WHERE transactionId = ?'''
         self.cursor.execute(sql, (userObj['amount'], userObj['transactionId']))
@@ -29,7 +29,7 @@ class TransactionDB:
         return self.cursor.rowcount #return the number of rows affected
 
     def getTransaction(self, transactionId):
-        sql = '''SELECT * FROM transaction_record where transactionId = ?'''
+        sql = '''SELECT * FROM transactions where transactionId = ?'''
         self.cursor.execute(sql, (transactionId,))
         row = self.cursor.fetchone()
 
