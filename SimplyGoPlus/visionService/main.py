@@ -18,6 +18,7 @@ import grpc
 from ..generated import vision_pb2
 from ..generated import vision_pb2_grpc
 from .db import VisionDB
+from .utils import compareFaces, getEmbeddingFromImage, pickleObject, unpickleObject
 
 visionDB = VisionDB()
 
@@ -25,13 +26,14 @@ class Vision(vision_pb2_grpc.VisionServicer):
     async def GetUserId(self, request: vision_pb2.UserIdRequest, context: grpc.aio.ServicerContext) -> vision_pb2.UserIdResponse:
         vision = visionDB.getAllEmbeddings()
         userImage = request.image
-        foundUser = None
+        currentEmbedding = getEmbeddingFromImage(userImage)[0]
+        foundUser = False
         for i in vision:
             # Perform embedding comparison here
-            # foundUser = vision["userId"]
-            pass
-
-        if vision is False:
+            knownEmbedding = unpickleObject(i[1])
+            if(compareFaces(knownEmbedding, currentEmbedding)):
+                foundUser = i["userId"]
+        if foundUser is False:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("User not found.")
             return vision_pb2.UserIdResponse()
@@ -41,9 +43,11 @@ class Vision(vision_pb2_grpc.VisionServicer):
 
     async def CreateEmbedding(self, request: vision_pb2.CreateEmbeddingRequest, context: grpc.aio.ServicerContext) -> vision_pb2.EmbeddingActionResponse:
         # Convert to embedding here
-        # image = embed(image)
-        vision = visionDB.createVision(
-            (request.userId, request.image)
+        userImage = request.image
+        currentEmbedding = getEmbeddingFromImage(userImage)[0]
+        pickledEmbedding = pickleObject(currentEmbedding)
+        vision = visionDB.createEmbedding(
+            (request.userId, pickledEmbedding)
         )
         if vision is False:
             context.set_code(grpc.StatusCode.INTERNAL)
@@ -53,9 +57,12 @@ class Vision(vision_pb2_grpc.VisionServicer):
     
     async def UpdateEmbedding(self, request: vision_pb2.CreateEmbeddingRequest, context: grpc.aio.ServicerContext) -> vision_pb2.EmbeddingActionResponse:
         # Convert to embedding here
+        userImage = request.image
+        currentEmbedding = getEmbeddingFromImage(userImage)[0]
+        pickledEmbedding = pickleObject(currentEmbedding)
         updated = visionDB.updateEmbedding(
             request.userId, 
-            {"image": request.image}
+            {"image": pickledEmbedding}
         )
         if not updated:
             context.set_code(grpc.StatusCode.NOT_FOUND)

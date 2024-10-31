@@ -5,6 +5,8 @@ from .gRPCHandler import getAccountByUsername
 from .api.account import account
 from .api.transaction import transaction
 from .api.trip import trip
+from .api.gantry import gantry
+
 from .models import Token
 from datetime import timedelta
 
@@ -35,3 +37,4 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 app.include_router(account)
 app.include_router(transaction)
 app.include_router(trip)
+app.include_router(gantry)

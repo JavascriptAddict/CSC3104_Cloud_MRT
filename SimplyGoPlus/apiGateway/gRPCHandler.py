@@ -1,7 +1,7 @@
 from os.path import defpath
 
 # from .main import ACCOUNT_SERVICE_ADDRESS, TRANSACTION_SERVICE_ADDRESS, TRIP_SERVICE_ADDRESS
-from ..generated import account_pb2_grpc, account_pb2, transaction_pb2, transaction_pb2_grpc, trip_pb2, trip_pb2_grpc
+from ..generated import account_pb2_grpc, account_pb2, transaction_pb2, transaction_pb2_grpc, trip_pb2, trip_pb2_grpc, vision_pb2, vision_pb2_grpc
 from .models import Account, AccountCreation, Transaction, Trip, TripCreation, TripResponse
 from .utils import hashPassword
 import grpc
@@ -10,6 +10,7 @@ from fastapi import HTTPException
 ACCOUNT_SERVICE_ADDRESS = "localhost:50051"
 TRANSACTION_SERVICE_ADDRESS = "localhost:50052"
 TRIP_SERVICE_ADDRESS = "localhost:50053"
+VISION_SERVICE_ADDRESS = "localhost:50054"
 
 async def getAccountById(accountId: str) -> account_pb2.AccountResponse:
     async with grpc.aio.insecure_channel(ACCOUNT_SERVICE_ADDRESS) as channel:
@@ -123,3 +124,41 @@ async def updateTrip(tripId: str, trip: Trip) -> trip_pb2.TripResponse:
         return response
     except grpc.aio.AioRpcError as e:
         raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
+
+# Vision service
+async def getUserByImage(userImage: bytes) -> vision_pb2.UserIdResponse:
+    async with grpc.aio.insecure_channel(VISION_SERVICE_ADDRESS) as channel:
+        stub = vision_pb2_grpc.VisionStub(channel)
+        try:
+            response = await stub.GetUserId(vision_pb2.UserIdRequest(image=userImage))
+            return response
+        except grpc.aio.AioRpcError as e:
+            raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
+        
+async def createEmbedding(userImage: bytes, userId: str) -> vision_pb2.EmbeddingActionResponse:
+    async with grpc.aio.insecure_channel(VISION_SERVICE_ADDRESS) as channel:
+        stub = vision_pb2_grpc.VisionStub(channel)
+        try:
+            print("HERE API GATWAT")
+            response = await stub.CreateEmbedding(vision_pb2.CreateEmbeddingRequest(userId=userId, image=userImage))
+            return response
+        except grpc.aio.AioRpcError as e:
+            raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
+
+async def updateEmbedding(userImage: bytes, userId: str) -> vision_pb2.EmbeddingActionResponse:
+    async with grpc.aio.insecure_channel(VISION_SERVICE_ADDRESS) as channel:
+        stub = vision_pb2_grpc.VisionStub(channel)
+        try:
+            response = await stub.UpdateEmbedding(vision_pb2.CreateEmbeddingRequest(userId=userId, image=userImage))
+            return response
+        except grpc.aio.AioRpcError as e:
+            raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
+    
+async def deleteEmbedding(userId: str) -> vision_pb2.EmbeddingActionResponse:
+    async with grpc.aio.insecure_channel(VISION_SERVICE_ADDRESS) as channel:
+        stub = vision_pb2_grpc.VisionStub(channel)
+        try:
+            response = await stub.DeleteEmbedding(vision_pb2.DeleteEmbeddingRequest(userId=userId))
+            return response
+        except grpc.aio.AioRpcError as e:
+            raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")

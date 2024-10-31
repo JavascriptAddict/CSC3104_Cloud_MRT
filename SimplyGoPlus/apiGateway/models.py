@@ -44,9 +44,6 @@ class TripResponse(Trip):
     accountId: str
     timestamp: str
     
-class InferenceRequest(BaseModel):
-    encodedImage: str
-
 
 class Trip(BaseModel):
     entry: str

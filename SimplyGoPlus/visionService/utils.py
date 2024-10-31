@@ -4,16 +4,18 @@ import numpy as np
 import pickle
 import os
 
+path = os.path.dirname(os.path.realpath(__file__))
+
 # Load pre-trained models
 detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
-faceRecogModel = dlib.face_recognition_model_v1("dlib_face_recognition_resnet_model_v1.dat")
+predictor = dlib.shape_predictor(path + "/models/shape_predictor_68_face_landmarks.dat")
+faceRecogModel = dlib.face_recognition_model_v1(path + "/models/dlib_face_recognition_resnet_model_v1.dat")
 
 def pickleObject(data):
-    return pickle.dump(data)
+    return pickle.dumps(data)
 
 def unpickleObject(data):
-    return pickle.dump(data)
+    return pickle.loads(data)
 
 # Function to compute the 128D face embedding
 def getFaceEmbedding(faceImage, shape):
