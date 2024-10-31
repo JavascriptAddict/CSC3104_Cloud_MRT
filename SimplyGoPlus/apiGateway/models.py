@@ -25,7 +25,9 @@ class AccountResponse(Account):
 
 class Transaction(BaseModel):
     amount: float
-    walletId: str
+
+class TransactionCreation(Transaction):
+    accountId: str
 
 class TransactionResponse(Transaction):
     transactionId: str

@@ -5,7 +5,7 @@ from ..gRPCHandler import getTransaction, createTransaction, updateTransaction
 from ...generated import transaction_pb2, transaction_pb2_grpc
 from google.protobuf.json_format import MessageToJson, MessageToDict
 import grpc
-from ..models import Transaction, AccountResponse
+from ..models import Transaction, AccountResponse, TransactionCreation
 from ..auth import getCurrentUser
 
 transaction = APIRouter()
@@ -18,7 +18,7 @@ async def get_transaction(transactionId: str, currentUser: AccountResponse = Dep
     return {"message": "Transaction retrieved", "data": MessageToDict(transaction)}
 
 @transaction.post("/transactions/create")
-async def create_transaction(transaction: Transaction, currentUser: AccountResponse = Depends(getCurrentUser)):
+async def create_transaction(transaction: TransactionCreation, currentUser: AccountResponse = Depends(getCurrentUser)):
     newTransaction = await createTransaction(transaction)
     if newTransaction is None or newTransaction.transactionId == "":
         return {"status": 500, "message": "Error occurred"}
