@@ -23,7 +23,7 @@ function SignUpPage() {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImage(URL.createObjectURL(file));
+      setImage(file);
     }
   };
 
@@ -38,26 +38,35 @@ function SignUpPage() {
       setError('Please fill in all the fields.');
       return;
     }
-    if (!image) {
+    const profile_image = image;
+    if (!profile_image) {
       setError('Please upload a profile image.');
       return;
-    }
+    } 
+    
+    
 
-    var newForm = {
+    /* var newForm = {
       "name": name,
       "nric": nric,
       "username": username,
       "password": password,
-    }
+    } */
+
+    var formData = new FormData();
+    formData.append('name', name);
+    formData.append('nric', nric);
+    formData.append('username', username);
+    formData.append('password', password);
+    formData.append('image', profile_image);
 
 
     try {
-      const response = await fetch('http://localhost/accounts/create', {
+      const response = await fetch(`http://localhost/accounts/create?name=${name}&nric=${nric}&username=${username}&password=${password}`, {
           method: 'POST',
-          body: JSON.stringify(newForm),
-          headers: {
-              'Content-Type': 'application/json',
-          },
+          body: formData,
+          
+         
       });
 
       if (!response.ok) {
@@ -68,9 +77,9 @@ function SignUpPage() {
       setSuccessMessage(data.message);
 
       // Redirect or handle success
-      setTimeout(() => {
-          navigate('/profile');
-      }, 1500);
+      
+      navigate('/');
+      
     } catch (error) {
         setError('Sign up failed: ' + error.message);
     }
@@ -124,7 +133,7 @@ function SignUpPage() {
         {image && (
           <div className="mb-4">
             <img
-              src={image}
+              src={URL.createObjectURL(image)}
               alt="Uploaded Profile"
               className="h-32 w-32 rounded-full object-cover"
             />

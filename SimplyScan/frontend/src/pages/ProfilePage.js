@@ -4,47 +4,113 @@ import Sidebar from '../components/Sidebar';
 function ProfilePage() {
   // Initial user info, could be fetched from an API
   const [userInfo, setUserInfo] = useState({
-    name: 'John Doe',
-    nric: 'johndoe@example.com',
-    username: 'johndoe',
-    password: '123-456-7890',
+    name: '',
+    nric: '',
+    username: '',
+    password: '',
   });
 
   const [image, setImage] = useState(null);
-  const [cardDetails, setCardDetails] = useState('');
   const [saveMessage, setSaveMessage] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
-    // Here you can fetch the user data from an API and set the state
-    // Example:
-    // fetch('/api/user-info')
-    //   .then(response => response.json())
-    //   .then(data => setUserInfo(data));
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem('access_token'); // Retrieve token from local storage
+
+      if (!token) {
+        setError('You must log in first.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost/accounts`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`, // Include token in the header
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Failed to fetch user info.');
+        }
+
+        const data = await response.json();
+        console.log(data);
+        setUserInfo(data.data); // Assuming the data structure matches userInfo state
+      } catch (error) {
+        setError('Error fetching user information: ' + error.message);
+      }
+    };
+
+    fetchUserInfo();
   }, []);
 
   const handleUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImage(URL.createObjectURL(file));
+      setImage(file);
     }
   };
 
-  const handleSaveProfile = () => {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setUserInfo((prevInfo) => ({
+      ...prevInfo,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveProfile = async () => {
     setSaveMessage('');
     setError('');
 
-    if (!image) {
-      setError('Please upload a profile image.');
-      return;
-    }
-    if (!cardDetails) {
-      setError('Please enter your card details.');
-      return;
-    }
+    const token = localStorage.getItem('access_token'); // Retrieve token from local storage
 
-    // Mock save logic
-    setSaveMessage('Profile saved successfully!');
+    // Update user information
+    try {
+      const response = await fetch(`http://localhost/accounts`, {
+        method: 'PUT', // Assuming your API uses PUT for updates
+        headers: {
+          'Authorization': `Bearer ${token}`, // Include token in the header
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userInfo), // Send updated userInfo
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail);
+      }
+
+      // If image upload is needed, handle that as well
+      if (image) {
+        const formData = new FormData();
+        formData.append('image', image);
+
+        const uploadResponse = await fetch(`http://localhost/accounts/image/upload`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`, // Include token in the header
+            
+          },
+          body: formData, // Send the form data
+        });
+
+        if (!uploadResponse.ok) {
+          const errorData = await uploadResponse.json();
+          throw new Error(errorData.detail);
+        }
+      }
+
+      const data = await response.json();
+      console.log(data);
+      setSaveMessage('Profile saved successfully!'); // Show success message
+    } catch (error) {
+      setError('Error saving profile: ' + error.message);
+    }
   };
 
   return (
@@ -59,35 +125,47 @@ function ProfilePage() {
         {/* User Information */}
         <div className="mb-8 p-6 bg-white rounded-lg shadow-lg">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">User Information</h2>
-          <p className="mb-2"><strong>Name:</strong> {userInfo.name}</p>
-          <p className="mb-2"><strong>NRIC:</strong> {userInfo.nric}</p>
-          <p className="mb-2"><strong>Username:</strong> {userInfo.username}</p>
-          <p className="mb-4"><strong>Phone:</strong> {userInfo.password}</p>
+          <div>Name</div>
+          <input
+            type="text"
+            name="name"
+            placeholder="Name"
+            value={userInfo.name}
+            onChange={handleInputChange}
+            className="block w-full p-3 border border-gray-300 rounded-lg mb-4"
+          />
+          <div>NRIC</div>
+          <input
+            type="text"
+            name="nric"
+            placeholder="NRIC"
+            value={userInfo.nric}
+            onChange={handleInputChange}
+            className="block w-full p-3 border border-gray-300 rounded-lg mb-4"
+          />
+          <div>Username</div>
+          <input
+            type="text"
+            name="username"
+            placeholder="Username"
+            value={userInfo.username}
+            onChange={handleInputChange}
+            className="block w-full p-3 border border-gray-300 rounded-lg mb-4"
+          />
+          
         </div>
 
         {/* Profile Image Upload */}
         <div className="mb-8 p-6 bg-white rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Profile Image</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Upload a front-facing image for facial recognition</h2>
           <input type="file" onChange={handleUpload} className="block mb-4" />
           {image && (
             <img
-              src={image}
+              src={URL.createObjectURL(image)} // Show preview of uploaded image
               alt="Uploaded Profile"
               className="h-32 w-32 rounded-full object-cover mb-4"
             />
           )}
-        </div>
-
-        {/* Card Details */}
-        <div className="mb-8 p-6 bg-white rounded-lg shadow-lg">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Card Details</h2>
-          <input
-            type="text"
-            placeholder="Enter Card Details"
-            value={cardDetails}
-            onChange={(e) => setCardDetails(e.target.value)}
-            className="block w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
         </div>
 
         {/* Save Button */}

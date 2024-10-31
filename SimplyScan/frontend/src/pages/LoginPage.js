@@ -55,6 +55,9 @@ function LoginPage() {
       }
 
       const data = await response.json();
+      // Store the access token in local storage or state
+      console.log(data);
+      localStorage.setItem('access_token', data.access_token);
       setLoginSuccess(data.message);
       
 
