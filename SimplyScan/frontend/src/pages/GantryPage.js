@@ -1,12 +1,44 @@
-import React, { useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
+import * as faceapi from 'face-api.js';
 
 function GantryPage() {
   const [recognitionStatus, setRecognitionStatus] = useState(null);
+  const videoRef = useRef(null);
 
-  const handleScanFace = () => {
-    // Simulating face scan success (can be replaced with backend integration later)
-    const isRecognized = Math.random() > 0.5; // Random success/failure simulation
-    setRecognitionStatus(isRecognized ? 'Success' : 'Failed');
+  useEffect(() => {
+    const loadModels = async () => {
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/models/weights');
+      await faceapi.nets.faceLandmark68Net.loadFromUri('/models/weights');
+      await faceapi.nets.faceRecognitionNet.loadFromUri('/models/weights');
+      startVideo();
+    };
+    
+    loadModels();
+  }, []);
+
+  const startVideo = () => {
+    navigator.mediaDevices.getUserMedia({ video: {} })
+      .then((stream) => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      })
+      .catch(err => console.error("Error accessing the webcam:", err));
+  };
+
+  const handleScanFace = async () => {
+    const detections = await faceapi.detectAllFaces(
+      videoRef.current,
+      new faceapi.TinyFaceDetectorOptions()
+    ).withFaceLandmarks().withFaceDescriptors();
+
+    if (detections.length > 0) {
+      console.log("Face detected:", detections); // Logs detection details
+      setRecognitionStatus('Success');
+    } else {
+      console.log("No face detected"); // Logs if no face is found
+      setRecognitionStatus('Failed');
+    }
   };
 
   const handleReset = () => {
@@ -19,11 +51,9 @@ function GantryPage() {
         <h1 className="text-2xl font-semibold mb-6 text-gray-800">Gantry Interface</h1>
         <p className="text-gray-600 mb-4">Simulate the facial recognition process for entry or exit.</p>
 
-        {/* Placeholder for camera feed */}
+        {/* Webcam Feed */}
         <div className="mb-6">
-          <div className="w-full h-48 bg-gray-200 rounded-lg flex justify-center items-center">
-            <span className="text-gray-500">Camera Feed Placeholder</span>
-          </div>
+          <video ref={videoRef} autoPlay muted className="rounded-lg shadow-lg w-full h-48" />
         </div>
 
         {/* Simulated recognition status */}
