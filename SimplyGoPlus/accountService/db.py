@@ -1,83 +1,102 @@
-import sqlite3
+import psycopg2
+from psycopg2.extras import DictCursor
 import os
 
 path = os.path.dirname(os.path.realpath(__file__))
 
 class AccountDB:
     def __init__(self):
-        self.conn = sqlite3.connect(path + '/account.db')
-        self.conn.row_factory = sqlite3.Row
-        self.cursor = self.conn.cursor()
-        self.initializeDB()
+        self.conn = psycopg2.connect('postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/accountDB?sslmode=require')
+        self.cursor = self.conn.cursor(cursor_factory=DictCursor)
 
-    def initializeDB(self):
-        """Creates the accounts table if it doesn't exist."""
-        self.cursor.execute("""
-        CREATE TABLE IF NOT EXISTS accounts (
-            userId TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            nric TEXT NOT NULL,
-            username TEXT NOT NULL,
-            password TEXT NOT NULL,
-            accountStatus BOOLEAN NOT NULL,
-            walletId TEXT,
-            walletAmount FLOAT
+        create_table_sql = '''
+        CREATE TABLE IF NOT EXISTS public.account (
+            "accountId" TEXT NOT NULL,
+            "name" TEXT NOT NULL,
+            "nric" TEXT NOT NULL,
+            "username" TEXT NOT NULL,
+            "password" TEXT NOT NULL,
+            "accountStatus" BOOLEAN NOT NULL,
+            "walletAmount" NUMERIC(5,2),
+            CONSTRAINT account_pkey PRIMARY KEY ("accountId")
         )
-        """)
-        self.conn.commit()
+        '''
+        try:
+            self.cursor.execute(create_table_sql)
+            self.conn.commit()
+            print("Table 'accounts' created successfully.")
+        except psycopg2.Error as e:
+            print(f"Database error during table creation: {e}")
+            self.conn.rollback()
     
-    def __del__(self):
-        self.conn.close()
-    
-    def getAccountById(self, userId):
-        """Fetch account details by userId."""
-        self.cursor.execute("SELECT * FROM accounts WHERE userId = ?", (userId,))
-        result = self.cursor.fetchone()
-        if result:
-            return dict(result)
-        return False
+    def getAccountById(self, accountId):
+        """Fetch account details by accountId."""
+        try:
+            sql = 'SELECT * FROM public.account WHERE "accountId" = %s'
+            self.cursor.execute(sql, (accountId,))
+            result = self.cursor.fetchone()
+            return dict(result) if result else False
+        except psycopg2.Error as e:
+            print(f"Database error during getAccountById: {e}")
+            self.conn.rollback()
+            return False
 
     def getAccountByUsername(self, username):
-        """Fetch account details by userId."""
-        self.cursor.execute("SELECT * FROM accounts WHERE username = ?", (username,))
-        result = self.cursor.fetchone()
-        if result:
-            return dict(result)
-        return False
-
-    def createAccount(self, createData):
-        """Insert a new account into the database."""
+        """Fetch account details by username."""
         try:
-            self.cursor.execute("""
-                INSERT INTO accounts (name, nric, username, password, accountStatus, userId, walletId, walletAmount) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """, createData)
-            self.conn.commit()
-            return self.getAccountById(createData[-3])  # Return created account using userId
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
+            sql = 'SELECT * FROM public.account WHERE "username" = %s'
+            self.cursor.execute(sql, (username,))
+            result = self.cursor.fetchone()
+            return dict(result) if result else False
+        except psycopg2.Error as e:
+            print(f"Database error during getAccountByUsername: {e}")
+            self.conn.rollback()
             return False
 
-    def updateAccount(self, userId, updateData):
-        """Update account information for the given userId."""
+    def createAccount(self, accountData):
+        """Insert a new account into the database."""
+        sql = '''
+            INSERT INTO public.account ("accountId", "name", "nric", "username", "password", "accountStatus", "walletAmount") 
+            VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING "accountId"
+        '''
         try:
-            self.cursor.execute("""
-                UPDATE accounts 
-                SET name = ?, nric = ?, username = ? 
-                WHERE userId = ?
-            """, (updateData['name'], updateData['nric'], updateData['username'], userId))
+            self.cursor.execute(sql, accountData)
+            self.conn.commit()
+            return self.getAccountById(accountData[0])  # Return created account using accountId
+        except psycopg2.Error as e:
+            print(f"Database error during createAccount: {e}")
+            self.conn.rollback()
+            return False
+
+    def updateAccount(self, accountId, updateData):
+        """Update account information for the given accountId."""
+        sql = '''
+            UPDATE public.account 
+            SET "name" = %s, "nric" = %s, "username" = %s
+            WHERE "accountId" = %s
+        '''
+        try:
+            # Use individual values instead of dictionary
+            self.cursor.execute(sql, (updateData['name'], updateData['nric'], updateData['username'], accountId))
             self.conn.commit()
             return self.cursor.rowcount > 0  # True if the account was updated
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
+        except psycopg2.Error as e:
+            print(f"Database error during updateAccount: {e}")
+            self.conn.rollback()
             return False
 
-    def deleteAccount(self, userId):
-        """Delete account by userId."""
+    def deleteAccount(self, accountId):
+        """Delete account by accountId."""
+        sql = 'DELETE FROM public.account WHERE "accountId" = %s'
         try:
-            self.cursor.execute("DELETE FROM accounts WHERE userId = ?", (userId,))
+            self.cursor.execute(sql, (accountId,))
             self.conn.commit()
             return self.cursor.rowcount > 0  # True if the account was deleted
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
+        except psycopg2.Error as e:
+            print(f"Database error during deleteAccount: {e}")
+            self.conn.rollback()
             return False
+    
+    def close(self):
+        self.cursor.close()
+        self.conn.close()
