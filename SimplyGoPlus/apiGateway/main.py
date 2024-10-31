@@ -4,6 +4,7 @@ from .auth import createAccessToken, verifyPassword
 from .gRPCHandler import getAccountByUsername
 from .api.account import account
 from .api.transaction import transaction
+from .api.trip import trip
 from .models import Token
 from datetime import timedelta
 
@@ -12,8 +13,6 @@ TOKEN_EXPIRE_MINUTES = 30
 app = FastAPI()
 
 # Declare the services IP destination. Change when needed in deployment
-TRANSACTION_SERVICE_ADDRESS = "localhost:50052"
-TRIP_SERVICE_ADDRESS = "localhost:50053"
 VISION_SERVICE_ADDRESS = "localhost:50054"
     
 @app.get("/")
@@ -35,3 +34,4 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 app.include_router(account)
 app.include_router(transaction)
+app.include_router(trip)
