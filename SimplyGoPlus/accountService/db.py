@@ -1,12 +1,14 @@
+from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import DictCursor
 import os
 
-path = os.path.dirname(os.path.realpath(__file__))
+load_dotenv()
 
 class AccountDB:
     def __init__(self):
-        self.conn = psycopg2.connect('postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/accountDB?sslmode=require')
+        database_url = os.getenv('ACCOUNT_DATABASE_URL')
+        self.conn = psycopg2.connect(database_url)
         self.cursor = self.conn.cursor(cursor_factory=DictCursor)
 
         create_table_sql = '''

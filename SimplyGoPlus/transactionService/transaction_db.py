@@ -1,12 +1,15 @@
+from dotenv import load_dotenv
 import psycopg2
 import os
 from psycopg2.extras import DictCursor
-path = os.path.dirname(os.path.realpath(__file__))
+
+load_dotenv()
 
 class TransactionDB:
     def __init__(self):
 
-        self.conn = psycopg2.connect('postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/transactionDB?sslmode=require')
+        database_url = os.getenv('TRANSACTION_DATABASE_URL')
+        self.conn = psycopg2.connect(database_url)
         self.cursor = self.conn.cursor(cursor_factory=DictCursor)
         create_table_sql = '''
         CREATE TABLE IF NOT EXISTS public.transactions (
