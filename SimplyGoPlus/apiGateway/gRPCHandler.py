@@ -79,14 +79,14 @@ async def getTransaction(transactionId: str) -> transaction_pb2.TransactionRespo
 
 async def createTransaction(transaction: Transaction) -> transaction_pb2.TransactionResponse:
     try:
-        response = await transaction_stub.CreateTransaction(transaction_pb2.CreateTransactionRequest(amount=transaction.amount, walletId=transaction.walletId))
+        response = await transaction_stub.CreateTransaction(transaction_pb2.CreateTransactionRequest(amount=transaction.amount, accountId=transaction.accountId))
         return response
     except grpc.aio.AioRpcError as e:
         raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")
 
 async def updateTransaction(transactionId: str, transaction: Transaction) -> transaction_pb2.TransactionResponse:
     try:
-        response = await transaction_stub.UpdateTransaction(transaction_pb2.UpdateTransactionRequest(amount=transaction.amount, walletId=transaction.walletId, transactionId=transactionId))
+        response = await transaction_stub.UpdateTransaction(transaction_pb2.UpdateTransactionRequest(amount=transaction.amount, transactionId=transactionId))
         return response
     except grpc.aio.AioRpcError as e:
         raise HTTPException(status_code=500, detail=f"gRPC error: {e.details()}")

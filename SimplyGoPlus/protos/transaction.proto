@@ -28,19 +28,18 @@ message TransactionRequest {
 }
 message CreateTransactionRequest{
   float amount = 1;
-  string walletId = 2;
+  string accountId = 2;
 }
 
 message UpdateTransactionRequest {
   string transactionId = 1;
   float amount = 2;
-  string walletId = 3;
 }
 
 message TransactionResponse {
   string transactionId = 1;
   float amount = 2;
-  string walletId = 3;
+  string accountId = 3;
   string timestamp = 4;
 }
 

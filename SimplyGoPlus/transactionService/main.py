@@ -33,7 +33,7 @@ class Transaction(transaction_pb2_grpc.TransactionServicer):
         if transaction is None:
              return transaction_pb2.TransactionResponse()
         return transaction_pb2.TransactionResponse(transactionId=transaction["transactionId"], amount=transaction["amount"],
-                                           walletId=transaction["walletId"], timestamp=transaction["timestamp"])
+                                           accountId=transaction["accountId"], timestamp=transaction["timestamp"])
 
     async def CreateTransaction(
             self,
@@ -42,20 +42,20 @@ class Transaction(transaction_pb2_grpc.TransactionServicer):
         ) -> transaction_pb2.TransactionResponse:
             newTransactionId = generateRandomId()
             timestamp = str(datetime.datetime.now())
-            transaction = transactionDB.createTransaction((newTransactionId, request.amount, request.walletId, timestamp))
+            transaction = transactionDB.createTransaction((newTransactionId, request.amount, request.accountId, timestamp))
             if transaction is None:
                 return transaction_pb2.TransactionResponse()
-            return transaction_pb2.TransactionResponse(transactionId=newTransactionId, amount = request.amount, walletId=request.walletId, timestamp=timestamp)
+            return transaction_pb2.TransactionResponse(transactionId=newTransactionId, amount = request.amount, accountId=request.accountId, timestamp=timestamp)
 
     async def UpdateTransaction(self, request: transaction_pb2.UpdateTransactionRequest, context: grpc.aio.ServicerContext) -> transaction_pb2.TransactionResponse:
         updated = transactionDB.updateTransaction(
-            {"amount": request.amount, "walletId": request.walletId, "transactionId": request.transactionId}
+            {"amount": request.amount, "transactionId": request.transactionId}
         )
         if not updated:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("Transaction not found for update.")
             return transaction_pb2.TransactionResponse()
-        return transaction_pb2.TransactionResponse(transactionId=request.transactionId, amount=request.amount,walletId=request.walletId)
+        return transaction_pb2.TransactionResponse(transactionId=request.transactionId, amount=request.amount)
 
 
 async def serve() -> None:

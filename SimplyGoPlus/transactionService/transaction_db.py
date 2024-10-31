@@ -11,20 +11,20 @@ class TransactionDB:
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS transaction_record
                     (transactionId varchar(255) PRIMARY KEY, 
                     amount NUMERIC(5, 2), 
-                    walletId varchar(255), 
+                    accountId varchar(255), 
                     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
 
     def createTransaction(self, userObj):
-        sql = '''INSERT INTO transaction_record (transactionId, amount, walletId, timestamp) VALUES(?,?,?,?)'''
+        sql = '''INSERT INTO transaction_record (transactionId, amount, accountId, timestamp) VALUES(?,?,?,?)'''
         self.cursor.execute(sql, userObj)
         self.conn.commit()
         return self.cursor.lastrowid
 
     def updateTransaction(self, userObj):
         sql = '''UPDATE transaction_record
-        SET amount = ?, walletId = ?
+        SET amount = ?
         WHERE transactionId = ?'''
-        self.cursor.execute(sql, (userObj['amount'], userObj['walletId'], userObj['transactionId']))
+        self.cursor.execute(sql, (userObj['amount'], userObj['transactionId']))
         self.conn.commit()
         return self.cursor.rowcount #return the number of rows affected
 

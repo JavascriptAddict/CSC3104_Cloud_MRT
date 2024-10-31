@@ -11,34 +11,32 @@ class TransactionRequest(_message.Message):
     def __init__(self, transactionId: _Optional[str] = ...) -> None: ...
 
 class CreateTransactionRequest(_message.Message):
-    __slots__ = ("amount", "walletId")
+    __slots__ = ("amount", "accountId")
     AMOUNT_FIELD_NUMBER: _ClassVar[int]
-    WALLETID_FIELD_NUMBER: _ClassVar[int]
+    ACCOUNTID_FIELD_NUMBER: _ClassVar[int]
     amount: float
-    walletId: str
-    def __init__(self, amount: _Optional[float] = ..., walletId: _Optional[str] = ...) -> None: ...
+    accountId: str
+    def __init__(self, amount: _Optional[float] = ..., accountId: _Optional[str] = ...) -> None: ...
 
 class UpdateTransactionRequest(_message.Message):
-    __slots__ = ("transactionId", "amount", "walletId")
+    __slots__ = ("transactionId", "amount")
     TRANSACTIONID_FIELD_NUMBER: _ClassVar[int]
     AMOUNT_FIELD_NUMBER: _ClassVar[int]
-    WALLETID_FIELD_NUMBER: _ClassVar[int]
     transactionId: str
     amount: float
-    walletId: str
-    def __init__(self, transactionId: _Optional[str] = ..., amount: _Optional[float] = ..., walletId: _Optional[str] = ...) -> None: ...
+    def __init__(self, transactionId: _Optional[str] = ..., amount: _Optional[float] = ...) -> None: ...
 
 class TransactionResponse(_message.Message):
-    __slots__ = ("transactionId", "amount", "walletId", "timestamp")
+    __slots__ = ("transactionId", "amount", "accountId", "timestamp")
     TRANSACTIONID_FIELD_NUMBER: _ClassVar[int]
     AMOUNT_FIELD_NUMBER: _ClassVar[int]
-    WALLETID_FIELD_NUMBER: _ClassVar[int]
+    ACCOUNTID_FIELD_NUMBER: _ClassVar[int]
     TIMESTAMP_FIELD_NUMBER: _ClassVar[int]
     transactionId: str
     amount: float
-    walletId: str
+    accountId: str
     timestamp: str
-    def __init__(self, transactionId: _Optional[str] = ..., amount: _Optional[float] = ..., walletId: _Optional[str] = ..., timestamp: _Optional[str] = ...) -> None: ...
+    def __init__(self, transactionId: _Optional[str] = ..., amount: _Optional[float] = ..., accountId: _Optional[str] = ..., timestamp: _Optional[str] = ...) -> None: ...
 
 class DeleteResponse(_message.Message):
     __slots__ = ()
