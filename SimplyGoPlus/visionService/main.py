@@ -52,7 +52,7 @@ class Vision(vision_pb2_grpc.VisionServicer):
         if vision is False:
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details("Embedding creation failed.")
-            return vision_pb2.VisionResponse()
+            return vision_pb2.EmbeddingActionResponse()
         return vision_pb2.EmbeddingActionResponse(message="New embedding created.")
     
     async def UpdateEmbedding(self, request: vision_pb2.CreateEmbeddingRequest, context: grpc.aio.ServicerContext) -> vision_pb2.EmbeddingActionResponse:
