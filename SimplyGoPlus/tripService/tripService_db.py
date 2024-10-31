@@ -49,11 +49,13 @@ class TripDB:
         return row
 
     def getTripByUserId(self, userId):
-        sql = '''SELECT * FROM trip_record where accountId = ? AND exit = ""'''
-        self.cursor.execute(sql, (userId,))
+        sql = '''SELECT * FROM trips where "accountId" = %s AND (exit = %s)'''
+        self.cursor.execute(sql, (userId,"",))
         row = self.cursor.fetchone()
         if row is None:
             return None
+        if row["timestamp"] is not None:
+            row["timestamp"] = row["timestamp"].isoformat()  # Convert to string format
         return row
     
     def deleteTrip(self, userId):
