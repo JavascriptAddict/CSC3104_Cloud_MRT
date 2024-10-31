@@ -12,7 +12,7 @@ class TransactionDB:
         self.conn = psycopg2.connect(database_url)
         self.cursor = self.conn.cursor(cursor_factory=DictCursor)
         create_table_sql = '''
-        CREATE TABLE IF NOT EXISTS public.transactions (
+        CREATE TABLE IF NOT EXISTS transactions (
             "transactionId" TEXT NOT NULL,
             amount NUMERIC(5,2) NOT NULL,
             "accountId" TEXT NOT NULL,

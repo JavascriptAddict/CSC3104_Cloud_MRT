@@ -40,11 +40,12 @@ pip install -r requirements.txt
 ### Activate virtual environment
 - .\SimplyGoPlus\myenv\Scripts\activate
 
-### Run the codes in 3 separate powershells all in virtual environment
+### Run the codes in 4 separate powershells all in virtual environment
 - Run as a module from package 
 - python -m SimplyGoPlus.accountService.main
 - python -m SimplyGoPlus.transactionService.main
 - python -m SimplyGoPlus.tripService.main
+- python -m SimplyGoPlus.visionService.main
 
 ### Run API Gateway in a separate powershell in virtual environment
 - uvicorn SimplyGoPlus.apiGateway.main:app --host 0.0.0.0 --port 80

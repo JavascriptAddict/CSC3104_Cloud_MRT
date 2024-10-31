@@ -12,7 +12,7 @@ class AccountDB:
         self.cursor = self.conn.cursor(cursor_factory=DictCursor)
 
         create_table_sql = '''
-        CREATE TABLE IF NOT EXISTS public.account (
+        CREATE TABLE IF NOT EXISTS accounts (
             "accountId" TEXT NOT NULL,
             "name" TEXT NOT NULL,
             "nric" TEXT NOT NULL,
@@ -34,7 +34,7 @@ class AccountDB:
     def getAccountById(self, accountId):
         """Fetch account details by accountId."""
         try:
-            sql = 'SELECT * FROM public.account WHERE "accountId" = %s'
+            sql = 'SELECT * FROM accounts WHERE "accountId" = %s'
             self.cursor.execute(sql, (accountId,))
             result = self.cursor.fetchone()
             return dict(result) if result else False
@@ -46,7 +46,7 @@ class AccountDB:
     def getAccountByUsername(self, username):
         """Fetch account details by username."""
         try:
-            sql = 'SELECT * FROM public.account WHERE "username" = %s'
+            sql = 'SELECT * FROM accounts WHERE "username" = %s'
             self.cursor.execute(sql, (username,))
             result = self.cursor.fetchone()
             return dict(result) if result else False
@@ -58,13 +58,13 @@ class AccountDB:
     def createAccount(self, accountData):
         """Insert a new account into the database."""
         sql = '''
-            INSERT INTO public.account ("accountId", "name", "nric", "username", "password", "accountStatus", "walletAmount") 
+            INSERT INTO accounts ("accountId", "name", "nric", "username", "password", "accountStatus", "walletAmount") 
             VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING "accountId"
         '''
         try:
             self.cursor.execute(sql, accountData)
             self.conn.commit()
-            return self.getAccountById(accountData[0])  # Return created account using accountId
+            return accountData[0]  # Return created account using accountId
         except psycopg2.Error as e:
             print(f"Database error during createAccount: {e}")
             self.conn.rollback()
@@ -73,7 +73,7 @@ class AccountDB:
     def updateAccount(self, accountId, updateData):
         """Update account information for the given accountId."""
         sql = '''
-            UPDATE public.account 
+            UPDATE accounts 
             SET "name" = %s, "nric" = %s, "username" = %s
             WHERE "accountId" = %s
         '''
@@ -90,7 +90,7 @@ class AccountDB:
     def updateWallet(self, accountId, amount):
         """Update wallet information for the given accountId."""
         sql = '''
-            UPDATE public.account 
+            UPDATE accounts 
             SET "walletAmount" = %s
             WHERE "accountId" = %s
         '''
@@ -104,7 +104,7 @@ class AccountDB:
         
     def deleteAccount(self, accountId):
         """Delete account by userId."""
-        sql = 'DELETE FROM public.account WHERE "accountId" = %s'
+        sql = 'DELETE FROM accounts WHERE "accountId" = %s'
         try:
             self.cursor.execute(sql, (accountId,))
             self.conn.commit()
