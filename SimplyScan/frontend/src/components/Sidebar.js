@@ -31,6 +31,14 @@ function Sidebar() {
               History
             </Link>
           </li>
+          <li>
+            <Link
+              to="/topup"
+              className="block py-2 px-4 rounded-lg text-gray-200 bg-gray-800 hover:bg-gray-700 transition duration-300"
+            >
+              Top Up
+            </Link>
+          </li>
         </ul>
       </div>
 

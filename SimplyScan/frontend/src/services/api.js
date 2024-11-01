@@ -17,3 +17,7 @@ export const saveProfile = (data) => {
 export const fetchHistory = () => {
   return axios.get(`${API_URL}/history`);
 };
+
+export const topUpBalance = (data) => {
+  return axios.post(`${API_URL}/accounts/topup`, data);
+};
