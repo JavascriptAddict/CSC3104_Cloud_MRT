@@ -27,7 +27,7 @@ class Account(account_pb2_grpc.AccountServicer):
         account = accountDB.getAccountById(request.userId)
         if account is False:
             context.set_code(grpc.StatusCode.NOT_FOUND)
-            context.set_details("Account not found.")
+            context.set_details("Account not found or error occured.")
             return account_pb2.AccountResponse()
         return account_pb2.AccountResponse(
             userId=account["accountId"],
@@ -43,7 +43,7 @@ class Account(account_pb2_grpc.AccountServicer):
         account = accountDB.getAccountByUsername(request.username)
         if account is False:
             context.set_code(grpc.StatusCode.NOT_FOUND)
-            context.set_details("Account not found.")
+            context.set_details("Account not found or error occured.")
             return account_pb2.AccountResponse()
         return account_pb2.AccountResponse(
             userId=account["accountId"],
@@ -61,18 +61,18 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         if account is False:
             context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details("Account creation failed.")
+            context.set_details("Account creation failed. Please try another username.")
             return account_pb2.AccountResponse()
         return account_pb2.AccountResponse(userId=newUserId)
 
     async def UpdateAccount(self, request: account_pb2.UpdateAccountRequest, context: grpc.aio.ServicerContext) -> account_pb2.AccountResponse:
         updated = accountDB.updateAccount(
             request.userId,
-            {"name": request.name, "nric": request.nric, "username": request.username}
+            {"name": request.name, "nric": request.nric, "password": request.password}
         )
         if not updated:
             context.set_code(grpc.StatusCode.NOT_FOUND)
-            context.set_details("Account not found for update.")
+            context.set_details("Account not found for update or error occured.")
             return account_pb2.AccountResponse()
         return account_pb2.AccountResponse(userId=request.userId)
 
@@ -83,7 +83,7 @@ class Account(account_pb2_grpc.AccountServicer):
         )
         if not updated:
             context.set_code(grpc.StatusCode.NOT_FOUND)
-            context.set_details("Wallet not found for update.")
+            context.set_details("Wallet not found for update or error occured.")
             return account_pb2.UpdateWallet()
         return account_pb2.UpdateWallet(userId=request.userId, amount=request.amount)
 
@@ -91,7 +91,7 @@ class Account(account_pb2_grpc.AccountServicer):
         deleted = accountDB.deleteAccount(request.userId)
         if not deleted:
             context.set_code(grpc.StatusCode.NOT_FOUND)
-            context.set_details("Account not found for deletion.")
+            context.set_details("Account not found for deletion or error occured.")
         return account_pb2.AccountResponse()
 
 async def serve() -> None:

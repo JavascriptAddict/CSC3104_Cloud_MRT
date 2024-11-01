@@ -12,7 +12,6 @@ class VisionDB:
         self.cursor = self.conn.cursor(cursor_factory=DictCursor)
         self.initializeDB()
 
-
     def initializeDB(self):
         """Creates the visions table if it doesn't exist."""
         self.cursor.execute("""
@@ -20,8 +19,7 @@ class VisionDB:
             "userId" TEXT PRIMARY KEY,
             image bytea
             )""")
-        self.conn.commit()
-    
+
     def __del__(self):
         self.conn.close()
     
@@ -48,7 +46,7 @@ class VisionDB:
         """Update vision information for the given userId."""
         try:
             sql = '''UPDATE visions SET "image" = %s WHERE "userId" = %s'''
-            self.cursor.execute(sql, (updateData['image']))
+            self.cursor.execute(sql, (updateData['image'], userId))
             self.conn.commit()
             return self.cursor.rowcount > 0  # True if the vision was updated
         except psycopg2.DatabaseError as e:

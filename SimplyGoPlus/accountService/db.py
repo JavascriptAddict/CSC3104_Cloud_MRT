@@ -16,7 +16,7 @@ class AccountDB:
             "accountId" TEXT NOT NULL,
             "name" TEXT NOT NULL,
             "nric" TEXT NOT NULL,
-            "username" TEXT NOT NULL,
+            "username" TEXT NOT NULL UNIQUE,
             "password" TEXT NOT NULL,
             "accountStatus" BOOLEAN NOT NULL,
             "walletAmount" NUMERIC(5,2),
@@ -74,12 +74,12 @@ class AccountDB:
         """Update account information for the given accountId."""
         sql = '''
             UPDATE accounts 
-            SET "name" = %s, "nric" = %s, "username" = %s
+            SET "name" = %s, "nric" = %s, "password" = %s
             WHERE "accountId" = %s
         '''
         try:
             # Use individual values instead of dictionary
-            self.cursor.execute(sql, (updateData['name'], updateData['nric'], updateData['username'], accountId))
+            self.cursor.execute(sql, (updateData['name'], updateData['nric'], updateData['password'], accountId))
             self.conn.commit()
             return self.cursor.rowcount > 0  # True if the account was updated
         except psycopg2.Error as e:

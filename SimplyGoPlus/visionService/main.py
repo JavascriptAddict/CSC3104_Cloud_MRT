@@ -27,6 +27,10 @@ class Vision(vision_pb2_grpc.VisionServicer):
         vision = visionDB.getAllEmbeddings()
         userImage = request.image
         currentEmbedding = getEmbeddingFromImage(userImage)[0]
+        if currentEmbedding is None:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details("No face detected in image.")
+            return vision_pb2.UserIdResponse()
         foundUser = False
         if vision is False:
             context.set_code(grpc.StatusCode.NOT_FOUND)
@@ -35,6 +39,8 @@ class Vision(vision_pb2_grpc.VisionServicer):
         for i in vision:
             # Perform embedding comparison here
             knownEmbedding = unpickleObject(i[1])
+            if knownEmbedding is None:
+                print(i)
             if(compareFaces(knownEmbedding, currentEmbedding)):
                 foundUser = i["userId"]
         if foundUser is False:
@@ -49,6 +55,10 @@ class Vision(vision_pb2_grpc.VisionServicer):
         # Convert to embedding here
         userImage = request.image
         currentEmbedding = getEmbeddingFromImage(userImage)[0]
+        if currentEmbedding is None:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details("No face detected in image.")
+            return vision_pb2.EmbeddingActionResponse()
         pickledEmbedding = pickleObject(currentEmbedding)
         vision = visionDB.createEmbedding(
             (request.userId, pickledEmbedding)
@@ -63,6 +73,10 @@ class Vision(vision_pb2_grpc.VisionServicer):
         # Convert to embedding here
         userImage = request.image
         currentEmbedding = getEmbeddingFromImage(userImage)[0]
+        if currentEmbedding is None:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details("No face detected in image.")
+            return vision_pb2.EmbeddingActionResponse()
         pickledEmbedding = pickleObject(currentEmbedding)
         updated = visionDB.updateEmbedding(
             request.userId,

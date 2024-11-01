@@ -19,7 +19,7 @@ import grpc
 from ..generated import transaction_pb2
 from ..generated import transaction_pb2_grpc
 from ..common.utils import generateRandomId
-from .transaction_db import TransactionDB
+from .db import TransactionDB
 
 transactionDB = TransactionDB()
 
@@ -31,7 +31,9 @@ class Transaction(transaction_pb2_grpc.TransactionServicer):
     ) -> transaction_pb2.TransactionList:
         rows = transactionDB.getTransaction(request.userId)
         if rows is None:
-             return transaction_pb2.TransactionList()
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("No transactions found for user or error occured.")
+            return transaction_pb2.TransactionList()
         transactions = [transaction_pb2.TransactionResponse(transactionId=row["transactionId"], amount=row["amount"],
                                            accountId=row["accountId"], timestamp=row["timestamp"]) for row in rows]
         return transaction_pb2.TransactionList(transactions=transactions)
@@ -45,6 +47,8 @@ class Transaction(transaction_pb2_grpc.TransactionServicer):
             timestamp = str(datetime.datetime.now())
             transaction = transactionDB.createTransaction((newTransactionId, request.amount, request.accountId, timestamp))
             if transaction is None:
+                context.set_code(grpc.StatusCode.INTERNAL)
+                context.set_details("Transaction creation failed or error occured.")
                 return transaction_pb2.TransactionResponse()
             return transaction_pb2.TransactionResponse(transactionId=newTransactionId, amount = request.amount, accountId=request.accountId, timestamp=timestamp)
 
@@ -53,8 +57,8 @@ class Transaction(transaction_pb2_grpc.TransactionServicer):
             {"amount": request.amount, "transactionId": request.transactionId}
         )
         if not updated:
-            context.set_code(grpc.StatusCode.NOT_FOUND)
-            context.set_details("Transaction not found for update.")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details("Transaction update failed or error occured.")
             return transaction_pb2.TransactionResponse()
         return transaction_pb2.TransactionResponse(transactionId=request.transactionId, amount=request.amount)
 

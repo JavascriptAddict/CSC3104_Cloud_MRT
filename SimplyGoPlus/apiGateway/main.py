@@ -13,9 +13,6 @@ from datetime import timedelta
 TOKEN_EXPIRE_MINUTES = 30
 
 app = FastAPI()
-
-# Declare the services IP destination. Change when needed in deployment
-VISION_SERVICE_ADDRESS = "localhost:50054"
     
 @app.get("/")
 async def root():
@@ -24,7 +21,6 @@ async def root():
 @app.post("/token", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await getAccountByUsername(form_data.username)
-    print(user)
     if not user or not verifyPassword(form_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
