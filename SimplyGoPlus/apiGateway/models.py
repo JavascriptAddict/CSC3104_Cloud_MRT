@@ -11,9 +11,12 @@ class TokenData(BaseModel):
 class Account(BaseModel):
     name: str 
     nric: str 
-    username: str
     
 class AccountCreation(Account):
+    password: str
+    username: str
+    
+class AccountUpdate(Account):
     password: str
     
 class AccountResponse(Account):

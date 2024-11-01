@@ -19,7 +19,7 @@ import grpc
 from ..generated import trip_pb2
 from ..generated import trip_pb2_grpc
 from ..common.utils import generateRandomId
-from .tripService_db import TripDB
+from .db import TripDB
 
 tripDB = TripDB()
 
@@ -31,6 +31,8 @@ class Trip(trip_pb2_grpc.TripServicer):
     ) -> trip_pb2.TripList:
         rows = tripDB.getTrip(request.userId)
         if rows is None:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("No trips found for user or error occured.")
             return trip_pb2.TripList()
         trips = [trip_pb2.TripResponse(tripId=row["tripId"], accountId=row["accountId"], entry=row["entry"],
                                            exit=row["exit"], timestamp=row["timestamp"]) for row in rows]
@@ -43,7 +45,9 @@ class Trip(trip_pb2_grpc.TripServicer):
     ) -> trip_pb2.TripResponse:
         trip = tripDB.getTripByUserId(request.userId)
         if trip is None:
-             return trip_pb2.TripResponse()
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("No ongoing trips found for user or error occured.")
+            return trip_pb2.TripResponse()
         return trip_pb2.TripResponse(tripId=trip["tripId"], accountId=trip["accountId"], entry=trip["entry"],
                                            exit=trip["exit"], timestamp=trip["timestamp"])
         
@@ -56,6 +60,8 @@ class Trip(trip_pb2_grpc.TripServicer):
             timestamp = str(datetime.datetime.now())
             trip = tripDB.createTrip((newTripId, request.accountId, request.entry, request.exit, timestamp))
             if trip is None:
+                context.set_code(grpc.StatusCode.INTERNAL)
+                context.set_details("Trip creation failed or error occured.")
                 return trip_pb2.TripResponse()
             return trip_pb2.TripResponse(tripId=newTripId, accountId=request.accountId, entry = request.entry, exit=request.exit, timestamp=timestamp)
 
@@ -64,8 +70,8 @@ class Trip(trip_pb2_grpc.TripServicer):
             {"entry": request.entry, "exit": request.exit, "tripId": request.tripId}
         )
         if not updated:
-            context.set_code(grpc.StatusCode.NOT_FOUND)
-            context.set_details("Trip not found for update.")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details("Trip not found for update or error occured.")
             return trip_pb2.TripResponse()
         return trip_pb2.TripResponse(tripId=request.tripId, entry=request.entry,exit=request.exit)
 
