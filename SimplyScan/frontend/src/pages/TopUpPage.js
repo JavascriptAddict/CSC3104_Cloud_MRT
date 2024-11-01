@@ -1,31 +1,75 @@
 import React, { useState } from 'react';
-import { topUpBalance } from '../services/api';
 import Sidebar from '../components/Sidebar';
 
+
 function TopUpPage() {
-  const [amount, setAmount] = useState('');
-  const [cardName, setCardName] = useState('');
+  /* const [amount, setAmount] = useState('');
   const [cardNumber, setCardNumber] = useState('');
   const [cvv, setCvv] = useState('');
-  const [expiryDate, setExpiryDate] = useState(''); // Combined field for month/year
-  const [message, setMessage] = useState('');
+  const [expiryDate, setExpiryDate] = useState(''); // Combined field for month/year */
+  const [message, setMessage] = useState(''); 
+
+  const [topupInfo, setTopupInfo] = useState({
+    amount: '',
+    cardNumber: '',
+    cvv: '',
+    expiryDate: '', // Combined field for month/year
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setTopupInfo((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleTopUp = async () => {
+    const token = localStorage.getItem('access_token');
+    const { amount, cardNumber, cvv, expiryDate } = topupInfo;
+    if (!token) {
+      setMessage('You must log in first.');
+      return;
+    }
+    const [expiryMonth, expiryYear] = expiryDate.split('/'); // Split the MM/YY format
+    if (!amount || !cardNumber || !cvv || !expiryDate) {
+      setMessage('Please fill in all the fields.');
+      return;
+    }
+  
+    var newForm = {
+      "amount": amount,
+      "cardNumber": cardNumber,
+      "cvv": cvv,
+      "expiryYear": expiryYear,
+      "expiryMonth": expiryMonth,
+    };
     try {
-      const [expiryMonth, expiryYear] = expiryDate.split('/'); // Split the MM/YY format
-      const response = await topUpBalance({
-        amount,
-        cardName,
-        cardNumber,
-        cvv,
-        expiryMonth,
-        expiryYear,
+      const response = await fetch('http://localhost/accounts/topup', {
+        method: 'POST',
+        body: JSON.stringify(newForm),
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
-      setMessage(response.data.message);
+      if (response.ok) {
+        const data = await response.json();
+        setMessage(data.message);
+      } else{
+        const data = await response.json();
+        // Check if data.detail is an object
+        if (typeof data.detail === 'object' && data.detail !== null) {
+          // Optionally, convert it to a string if it's an object
+          setMessage(JSON.stringify(data.detail)); // You may want to format this differently
+        } else {
+          setMessage(data.detail); // Assuming it's a string
+        }
+        return;
+      }
     } catch (error) {
-      setMessage('Error: Unable to top up balance.');
+      console.error('Error:', error);
+      setMessage('Failed to top up balance');
     }
   };
+  
 
   return (
     <div className="flex">
@@ -39,37 +83,34 @@ function TopUpPage() {
 
           <input
             type="number"
+            name='amount'
             placeholder="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            value={topupInfo.amount}
+            onChange={handleChange}
             className="w-full mb-4 p-2 border rounded"
           />
           <input
             type="text"
-            placeholder="Card Name"
-            value={cardName}
-            onChange={(e) => setCardName(e.target.value)}
-            className="w-full mb-4 p-2 border rounded"
-          />
-          <input
-            type="text"
+            name='cardNumber'
             placeholder="Card Number"
-            value={cardNumber}
-            onChange={(e) => setCardNumber(e.target.value)}
+            value={topupInfo.cardNumber}
+            onChange={handleChange}
             className="w-full mb-4 p-2 border rounded"
           />
           <input
             type="text"
+            name='cvv'
             placeholder="CVV"
-            value={cvv}
-            onChange={(e) => setCvv(e.target.value)}
+            value={topupInfo.cvv}
+            onChange={handleChange}
             className="w-full mb-4 p-2 border rounded"
           />
           <input
             type="text"
+            name='expiryDate'
             placeholder="Expiry Date (MM/YY)"
-            value={expiryDate}
-            onChange={(e) => setExpiryDate(e.target.value)}
+            value={topupInfo.expiryDate}
+            onChange={handleChange}
             className="w-full mb-4 p-2 border rounded"
           />
 
