@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 
 
@@ -8,13 +8,47 @@ function TopUpPage() {
   const [cvv, setCvv] = useState('');
   const [expiryDate, setExpiryDate] = useState(''); // Combined field for month/year */
   const [message, setMessage] = useState(''); 
-
+  const [wallet, setWallet] = useState(0);
   const [topupInfo, setTopupInfo] = useState({
     amount: '',
     cardNumber: '',
     cvv: '',
     expiryDate: '', // Combined field for month/year
   });
+  const fetchWalletInfo = async () => {
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+      console.log('You must log in first.');
+      return;
+    }
+
+    try {
+      const wallet = await fetch(`http://localhost/accounts/checkwallet`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!wallet.ok) {
+        const errorData = await wallet.json();
+        throw new Error(errorData.detail || 'Failed to fetch wallet info.');
+      }
+
+      const walletData = await wallet.json();
+      console.log(walletData.data);
+      setWallet(walletData.data);
+      
+    } catch (error) {
+      console.log('Error fetching wallet information: ' + error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchWalletInfo();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -53,6 +87,7 @@ function TopUpPage() {
       if (response.ok) {
         const data = await response.json();
         setMessage(data.message);
+        fetchWalletInfo();
       } else{
         const data = await response.json();
         // Check if data.detail is an object
@@ -80,7 +115,7 @@ function TopUpPage() {
       <div className="ml-64 p-8 w-full bg-blue-200 min-h-screen flex justify-center items-center">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-2xl font-bold mb-4 text-gray-800">Top Up Balance</h2>
-
+          <h3 className="text-lg font-semibold mb-4 text-gray-800">Current Balance: $ {wallet}</h3>
           <input
             type="number"
             name='amount'

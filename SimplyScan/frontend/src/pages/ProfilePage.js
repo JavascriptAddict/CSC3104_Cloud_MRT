@@ -7,12 +7,14 @@ function ProfilePage() {
     nric: '',
     username: '',
     password: '', // Leave this blank initially for the form
+    wallet: 0,
   });
 
   const [currentPassword, setCurrentPassword] = useState(''); // Store the original password here
   const [image, setImage] = useState(null);
   const [saveMessage, setSaveMessage] = useState('');
   const [error, setError] = useState('');
+  
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -39,10 +41,27 @@ function ProfilePage() {
 
         const data = await response.json();
         console.log(data);
+
+        const wallet = await fetch(`http://localhost/accounts/checkwallet`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!wallet.ok) {
+          const errorData = await wallet.json();
+          throw new Error(errorData.detail || 'Failed to fetch wallet info.');
+        }
+
+        const walletData = await wallet.json();
+        console.log(walletData.data);
         
         setUserInfo({
           ...data.data,
-          password: '' // Set password field to blank in the form
+          password: '', // Set password field to blank in the form
+          wallet: walletData.data,
         });
         
         setCurrentPassword(data.data.password); // Store the original password separately
@@ -130,6 +149,7 @@ function ProfilePage() {
         
         <div className="mb-8 p-6 bg-white rounded-lg shadow-lg">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">User Information</h2>
+          <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">Wallet Balance: ${userInfo.wallet}</div>
           <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">Username: {userInfo.username}</div>
           <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">Name: {userInfo.name}</div>
           <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">NRIC: {userInfo.nric}</div>
