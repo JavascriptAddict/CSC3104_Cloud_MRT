@@ -18,11 +18,11 @@ spec:
         ports:
           - containerPort: 5002
         env:
-          - name: postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/tripDB?sslmode=require
+          - name: TRIP_DATABASE_URL
             valueFrom:
               secretKeyRef:
-                name: trip-db-url
-                key: postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/tripDB?sslmode=require
+                name: trip-db-secret
+                key: DATABASE_URL
 ---
 apiVersion: v1
 kind: Service

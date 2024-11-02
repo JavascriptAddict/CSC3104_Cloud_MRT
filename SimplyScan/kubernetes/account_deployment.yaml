@@ -18,11 +18,11 @@ spec:
         ports:
           - containerPort: 5000
         env:
-          - name: postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/accountDB?sslmode=require
+          - name: ACCOUNT_DATABASE_URL
             valueFrom:
               secretKeyRef:
-                name: account-db-url
-                key: postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/accountDB?sslmode=require
+                name: account-db-secret
+                key: DATABASE_URL
 ---
 apiVersion: v1
 kind: Service
