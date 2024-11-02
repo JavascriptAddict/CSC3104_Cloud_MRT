@@ -43,11 +43,17 @@ function GantryPage() {
   }, []);
 
   const handleScanFace = async () => {
+    const startTime = performance.now();
+
     const detections = await faceapi.detectAllFaces(
       videoRef.current,
       new faceapi.TinyFaceDetectorOptions()
     ).withFaceLandmarks().withFaceDescriptors();
 
+    const endTime = performance.now(); // End timer
+    const timeTaken = endTime - startTime; // Calculate time taken
+
+    console.log(`Time taken to detect face: ${timeTaken.toFixed(2)} ms`); // Log time taken
     const ctx = canvasRef.current.getContext('2d');
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
