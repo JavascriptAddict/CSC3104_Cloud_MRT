@@ -1,0 +1,25 @@
+services:
+  trip_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "50053:50053"
+    environment:
+      - TRIP_DATABASE_URL=postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/tripDB?sslmode=require
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: avnadmin
+      POSTGRES_PASSWORD: AVNS_rOO_xCE2pecb4TH8FOY
+      POSTGRES_DB: tripDB
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
