@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.middleware.cors import CORSMiddleware
 from .auth import createAccessToken, verifyPassword
 from .gRPCHandler import getAccountByUsername
 from .api.account import account
@@ -13,7 +14,15 @@ from datetime import timedelta
 TOKEN_EXPIRE_MINUTES = 30
 
 app = FastAPI()
-    
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Set to all just for ease of development. In actual use, it should be limited to specific ones
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/")
 async def root():
     return {"message": "Welcome to SimplyGoPlus"}
