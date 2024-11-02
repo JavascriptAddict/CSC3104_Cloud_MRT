@@ -5,7 +5,9 @@ function GantryPage() {
   const [recognitionStatus, setRecognitionStatus] = useState(null);
   const [entryName, setEntryName] = useState('Punggol MRT');
   const [exitName, setExitName] = useState('Bukit Batok MRT');
-  const [tripStatus, setTripStatus] = useState('Entry'); // New state for entry/exit toggle
+  const [tripStatus, setTripStatus] = useState(
+    localStorage.getItem('tripStatus') || 'Entry' // Retrieve tripStatus from localStorage
+  );
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const intervalRef = useRef(null);
@@ -70,49 +72,13 @@ function GantryPage() {
     sendFrameToAPI(frameData);
   };
 
-  /* const sendFrameToAPI = async (frameData) => {
-    console.log("Attempting to send frame to API...");
-  
-    // Convert base64 data URL to a Blob
-    const blob = await (await fetch(frameData)).blob();
-    
-    // Create FormData object and append entry and image
-    const formData = new FormData();
-    formData.append('entry', entryName);
-    formData.append('image', blob, 'frame.jpg');
-  
-    const endpoint = tripStatus === 'Entry' ? 'tripStart' : 'tripEnd'; // Switch endpoint based on tripStatus
-
-    try {
-      const response = await fetch(`http://localhost/gantry/${endpoint}?entry=${entryName}`, {
-        method: 'POST',
-        body: formData,
-      });
-  
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log(responseData.message);
-        setRecognitionStatus(responseData.message);
-      } else {
-        console.log("Failed to send frame", await response.text());
-        throw new Error("Failed to send frame");
-      }
-    } catch (error) {
-      console.error("Error sending frame:", error);
-      setRecognitionStatus("Failed to send frame");
-    }
-  }; */
-
   const sendFrameToAPI = async (frameData) => {
     console.log("Attempting to send frame to API...");
     
     const blob = await (await fetch(frameData)).blob();
     const formData = new FormData();
     formData.append('image', blob, 'frame.jpg');
-  
-    const endpoint = tripStatus === 'Entry' ? 'tripStart' : 'tripEnd';
-    const apiUrl = `http://localhost/gantry/${endpoint}`;
-  
+    
     try {
       let response;
   
@@ -120,16 +86,16 @@ function GantryPage() {
         // For Entry, use POST request with entryName
         console.log('Entering station:', entryName);
         formData.append('entry', entryName);
-        response = await fetch(`${apiUrl}?entry=${entryName}`, {
+        response = await fetch(`http://localhost/gantry/tripStart?entry=${entryName}`, {
           method: 'POST',
           body: formData,
         });
       } else {
         // For Exit, use GET request with exitName
         console.log('Exiting station:', exitName);
-        response = await fetch(`${apiUrl}?exit=${exitName}`, {
+        response = await fetch(`http://localhost/gantry/tripEnd?exit=${exitName}`, {
           method: 'PUT',
-          body : formData,
+          body: formData,
         });
       }
   
@@ -138,32 +104,40 @@ function GantryPage() {
         console.log(responseData.message);
         setRecognitionStatus(responseData.message);
       } else {
-        console.log("Failed to send frame", await response.text());
+        var errData = await response.json();
+        console.log("Failed to send frame", errData);
+        setRecognitionStatus(errData.detail);
         throw new Error("Failed to send frame");
       }
     } catch (error) {
       console.error("Error sending frame:", error);
-      setRecognitionStatus("Failed to send frame");
+      
     }
   };
-  
-  
 
   const startFaceDetection = () => {
     intervalRef.current = setInterval(() => {
       handleScanFace();
     }, 1000);
-    console.log('Face detection started');
+    console.log('Starting face detection...');
   };
 
   const handleReset = () => {
     setRecognitionStatus(null);
-    setEntryName('');
   };
 
-  // Toggle the trip status between Entry and Exit
   const toggleTripStatus = () => {
-    setTripStatus((prevStatus) => (prevStatus === 'Entry' ? 'Exit' : 'Entry'));
+    setTripStatus((prevStatus) => {
+      const newStatus = prevStatus === 'Entry' ? 'Exit' : 'Entry';
+      localStorage.setItem('tripStatus', newStatus); // Save new status to localStorage
+      console.log("Trip status set to:", newStatus);
+      
+      setTimeout(() => {
+        window.location.reload();
+      }, 100); // Small delay to ensure state updates before reload
+      
+      return newStatus;
+    });
   };
 
   return (
@@ -171,23 +145,21 @@ function GantryPage() {
       <div className="p-8 bg-white rounded-lg shadow-lg max-w-md w-full text-center">
         <h1 className="text-2xl font-semibold mb-6 text-gray-800">Gantry Interface</h1>
         <p className="text-gray-600 mb-4">Simulate the facial recognition process for entry or exit.</p>
+        <div className={`block w-full p-3 border border-gray-300 rounded-lg mb-4 ${tripStatus === 'Entry' ? 'text-green-500' : 'text-red-500'}`}>
+          Gantry mode: {tripStatus}
+        </div>
 
-        {/* Entry Name Input */}
         <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">
           {tripStatus === 'Entry' ? entryName : exitName}
         </div>
 
-        
-        {/* Webcam Feed and Canvas Overlay */}
         <div className="relative mb-6">
           <video ref={videoRef} autoPlay muted className="rounded-lg shadow-lg w-full h-48" />
           <canvas ref={canvasRef} className="absolute top-0 left-0 w-full h-full" />
         </div>
 
-        {/* Recognition Status */}
         <p className="text-gray-600 mb-4">{recognitionStatus}</p>
 
-        {/* Toggle Button for Entry/Exit */}
         <button
           onClick={toggleTripStatus}
           className={`mb-4 py-2 px-4 rounded-lg w-full ${tripStatus === 'Entry' ? 'bg-green-500' : 'bg-red-500'} text-white`}
@@ -195,7 +167,6 @@ function GantryPage() {
           Toggle to {tripStatus === 'Entry' ? 'Exit' : 'Entry'}
         </button>
 
-        {/* Reset Button */}
         <button
           onClick={handleReset}
           className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300 w-full"
