@@ -3,11 +3,13 @@ import * as faceapi from 'face-api.js';
 
 function GantryPage() {
   const [recognitionStatus, setRecognitionStatus] = useState(null);
+  const [gateStatus, setGateStatus] = useState('Closed');
   const [entryName, setEntryName] = useState('Punggol MRT');
   const [exitName, setExitName] = useState('Bukit Batok MRT');
   const [tripStatus, setTripStatus] = useState(
-    localStorage.getItem('tripStatus') || 'Entry' // Retrieve tripStatus from localStorage
+    localStorage.getItem('tripStatus') || 'Entry'
   );
+  const [isGateOpen, setIsGateOpen] = useState(false); // New state for gate control
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const intervalRef = useRef(null);
@@ -68,11 +70,13 @@ function GantryPage() {
     const context = canvas.getContext('2d');
     context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
 
-    const frameData = canvas.toDataURL('image/jpeg'); // Convert frame to base64
+    const frameData = canvas.toDataURL('image/jpeg');
     sendFrameToAPI(frameData);
   };
 
   const sendFrameToAPI = async (frameData) => {
+    if (isGateOpen) return; // Prevent action if the gate is open
+
     console.log("Attempting to send frame to API...");
     
     const blob = await (await fetch(frameData)).blob();
@@ -83,7 +87,6 @@ function GantryPage() {
       let response;
   
       if (tripStatus === 'Entry') {
-        // For Entry, use POST request with entryName
         console.log('Entering station:', entryName);
         formData.append('entry', entryName);
         response = await fetch(`http://localhost/gantry/tripStart?entry=${entryName}`, {
@@ -91,7 +94,6 @@ function GantryPage() {
           body: formData,
         });
       } else {
-        // For Exit, use GET request with exitName
         console.log('Exiting station:', exitName);
         response = await fetch(`http://localhost/gantry/tripEnd?exit=${exitName}`, {
           method: 'PUT',
@@ -103,6 +105,14 @@ function GantryPage() {
         const responseData = await response.json();
         console.log(responseData.message);
         setRecognitionStatus(responseData.message);
+        if (responseData.message === 'Trip created' || responseData.message === 'Trip ended') {
+          setGateStatus('Open');
+          setIsGateOpen(true); // Set gate to open
+          setTimeout(() => {
+            setGateStatus('Closed'); // Set gate back to closed after delay
+            setIsGateOpen(false); // Reset gate state
+          }, 3000); // Delay for 3 seconds (change as needed)
+        }
       } else {
         var errData = await response.json();
         console.log("Failed to send frame", errData);
@@ -129,12 +139,12 @@ function GantryPage() {
   const toggleTripStatus = () => {
     setTripStatus((prevStatus) => {
       const newStatus = prevStatus === 'Entry' ? 'Exit' : 'Entry';
-      localStorage.setItem('tripStatus', newStatus); // Save new status to localStorage
+      localStorage.setItem('tripStatus', newStatus);
       console.log("Trip status set to:", newStatus);
       
       setTimeout(() => {
         window.location.reload();
-      }, 100); // Small delay to ensure state updates before reload
+      }, 100);
       
       return newStatus;
     });
@@ -148,7 +158,9 @@ function GantryPage() {
         <div className={`block w-full p-3 border border-gray-300 rounded-lg mb-4 ${tripStatus === 'Entry' ? 'text-green-500' : 'text-red-500'}`}>
           Gantry mode: {tripStatus}
         </div>
-
+        <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">
+          Gantry gates: {gateStatus}
+        </div>
         <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">
           {tripStatus === 'Entry' ? entryName : exitName}
         </div>
