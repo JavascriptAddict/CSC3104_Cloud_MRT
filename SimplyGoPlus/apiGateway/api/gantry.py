@@ -13,6 +13,12 @@ gantry = APIRouter()
 async def start_trip(image: UploadFile, entry: str):
     fileBytes = await image.read()
     account = await getUserByImage(fileBytes)
+    try:
+        existingTrip = await getTripByUserId(account.userId)
+        if existingTrip:
+            return {"message": "There is already an ongoing trip with this user. Unable to start trip.", "data": MessageToDict(existingTrip)}
+    except HTTPException:
+        pass
     account = await getAccountById(account.userId)
     if not checkWalletAmount(account.walletAmount):
         return {"message": "Insufficient wallet amount", "data": account.walletAmount}

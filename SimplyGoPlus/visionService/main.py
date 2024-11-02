@@ -39,8 +39,6 @@ class Vision(vision_pb2_grpc.VisionServicer):
         for i in vision:
             # Perform embedding comparison here
             knownEmbedding = unpickleObject(i[1])
-            if knownEmbedding is None:
-                print(i)
             if(compareFaces(knownEmbedding, currentEmbedding)):
                 foundUser = i["userId"]
         if foundUser is False:

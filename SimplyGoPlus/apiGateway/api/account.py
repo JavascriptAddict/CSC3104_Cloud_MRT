@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, UploadFile, Form, HTTPException
 from ..models import Account, AccountCreation, AccountUpdate, AccountResponse, AccountTopUp
 from ..auth import getCurrentUser
 from google.protobuf.json_format import MessageToDict
-from ..gRPCHandler import getAccountById, updateAccount, deleteAccount, createAccount, createEmbedding, updateUserWallet, updateEmbedding
+from ..gRPCHandler import getAccountById, updateAccount, deleteAccount, createAccount, createEmbedding, updateUserWallet, updateEmbedding, getUserByImage
 from ..utils import checkWalletAmount, simulateCardCharge
 from ..utils import hashPassword
 import json
@@ -37,9 +37,15 @@ async def top_up(topUpInfo: AccountTopUp, currentUser: AccountResponse = Depends
 
 @account.post("/accounts/create") 
 async def create_account(image: UploadFile, name: str = Form, nric: str = Form, username: str = Form, password: str = Form): 
+    fileBytes = await image.read()
+    try: 
+        account = await getUserByImage(fileBytes)
+        if account:
+            return {"message": "Account exist or error occured"}
+    except HTTPException:
+        pass
     accountObj = AccountCreation(name=name, username=username, password=hashPassword(password), nric=nric) 
     newAccount = await createAccount(accountObj) 
-    fileBytes = await image.read() 
     response = await createEmbedding(fileBytes, newAccount.userId) 
     if newAccount is None or response is None:
         raise HTTPException(status_code=500, detail="Error occured")
@@ -48,6 +54,12 @@ async def create_account(image: UploadFile, name: str = Form, nric: str = Form, 
 @account.put("/accounts/image/upload")
 async def update_account_embedding(image: UploadFile, currentUser: AccountResponse = Depends(getCurrentUser)):
     fileBytes = await image.read()
+    try: 
+        account = await getUserByImage(fileBytes)
+        if account.userId != currentUser.userId:
+            return {"message": "This face embedding belongs to another user."}
+    except HTTPException:
+        pass
     response = await updateEmbedding(fileBytes, currentUser.userId)
     if response is None:
         raise HTTPException(status_code=500, detail="Error occured")
