@@ -1,5 +1,3 @@
-# account.yaml
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,13 +13,16 @@ spec:
         app: account
     spec:
       containers:
-      - name: account
-        image: <your-dockerhub-username>/account-service:latest
+      - name: account-service
+        image: your-docker-username/account-service:latest
         ports:
-        - containerPort: 5001
+          - containerPort: 5000
         env:
-        - name: DATABASE_URL
-          value: "postgresql://myuser:mypassword@postgres-service:5432/mydatabase"  # PostgreSQL connection
+          - name: postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/accountDB?sslmode=require
+            valueFrom:
+              secretKeyRef:
+                name: account-db-url
+                key: postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/accountDB?sslmode=require
 ---
 apiVersion: v1
 kind: Service
@@ -31,7 +32,7 @@ spec:
   selector:
     app: account
   ports:
-  - protocol: TCP
-    port: 5001
-    targetPort: 5001
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
   type: ClusterIP
