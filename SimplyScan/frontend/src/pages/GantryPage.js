@@ -4,6 +4,8 @@ import * as faceapi from 'face-api.js';
 function GantryPage() {
   const [recognitionStatus, setRecognitionStatus] = useState(null);
   const [entryName, setEntryName] = useState('Punggol MRT');
+  const [exitName, setExitName] = useState('Bukit Batok MRT');
+  const [tripStatus, setTripStatus] = useState('Entry'); // New state for entry/exit toggle
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const intervalRef = useRef(null);
@@ -68,7 +70,7 @@ function GantryPage() {
     sendFrameToAPI(frameData);
   };
 
-  const sendFrameToAPI = async (frameData) => {
+  /* const sendFrameToAPI = async (frameData) => {
     console.log("Attempting to send frame to API...");
   
     // Convert base64 data URL to a Blob
@@ -79,15 +81,59 @@ function GantryPage() {
     formData.append('entry', entryName);
     formData.append('image', blob, 'frame.jpg');
   
+    const endpoint = tripStatus === 'Entry' ? 'tripStart' : 'tripEnd'; // Switch endpoint based on tripStatus
+
     try {
-      const response = await fetch(`http://localhost/gantry/tripStart?entry=${entryName}`, {
+      const response = await fetch(`http://localhost/gantry/${endpoint}?entry=${entryName}`, {
         method: 'POST',
         body: formData,
       });
   
       if (response.ok) {
-        console.log("Frame sent successfully");
-        /* console.log(await response.json().message); */
+        const responseData = await response.json();
+        console.log(responseData.message);
+        setRecognitionStatus(responseData.message);
+      } else {
+        console.log("Failed to send frame", await response.text());
+        throw new Error("Failed to send frame");
+      }
+    } catch (error) {
+      console.error("Error sending frame:", error);
+      setRecognitionStatus("Failed to send frame");
+    }
+  }; */
+
+  const sendFrameToAPI = async (frameData) => {
+    console.log("Attempting to send frame to API...");
+    
+    const blob = await (await fetch(frameData)).blob();
+    const formData = new FormData();
+    formData.append('image', blob, 'frame.jpg');
+  
+    const endpoint = tripStatus === 'Entry' ? 'tripStart' : 'tripEnd';
+    const apiUrl = `http://localhost/gantry/${endpoint}`;
+  
+    try {
+      let response;
+  
+      if (tripStatus === 'Entry') {
+        // For Entry, use POST request with entryName
+        console.log('Entering station:', entryName);
+        formData.append('entry', entryName);
+        response = await fetch(`${apiUrl}?entry=${entryName}`, {
+          method: 'POST',
+          body: formData,
+        });
+      } else {
+        // For Exit, use GET request with exitName
+        console.log('Exiting station:', exitName);
+        response = await fetch(`${apiUrl}?exit=${exitName}`, {
+          method: 'PUT',
+          body : formData,
+        });
+      }
+  
+      if (response.ok) {
         const responseData = await response.json();
         console.log(responseData.message);
         setRecognitionStatus(responseData.message);
@@ -100,6 +146,7 @@ function GantryPage() {
       setRecognitionStatus("Failed to send frame");
     }
   };
+  
   
 
   const startFaceDetection = () => {
@@ -114,6 +161,11 @@ function GantryPage() {
     setEntryName('');
   };
 
+  // Toggle the trip status between Entry and Exit
+  const toggleTripStatus = () => {
+    setTripStatus((prevStatus) => (prevStatus === 'Entry' ? 'Exit' : 'Entry'));
+  };
+
   return (
     <div className="h-screen flex justify-center items-center bg-blue-200">
       <div className="p-8 bg-white rounded-lg shadow-lg max-w-md w-full text-center">
@@ -121,9 +173,11 @@ function GantryPage() {
         <p className="text-gray-600 mb-4">Simulate the facial recognition process for entry or exit.</p>
 
         {/* Entry Name Input */}
-        <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">{entryName}</div>
-        
+        <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">
+          {tripStatus === 'Entry' ? entryName : exitName}
+        </div>
 
+        
         {/* Webcam Feed and Canvas Overlay */}
         <div className="relative mb-6">
           <video ref={videoRef} autoPlay muted className="rounded-lg shadow-lg w-full h-48" />
@@ -131,16 +185,15 @@ function GantryPage() {
         </div>
 
         {/* Recognition Status */}
-        {/* {recognitionStatus === 'Success' && (
-          <p className="text-green-500 mb-4">Face recognized! Access granted.</p>
-        )}
-        {recognitionStatus === 'Failed' && (
-          <p className="text-red-500 mb-4">Face not recognized! Access denied.</p>
-        )}
-        {recognitionStatus === 'Frame Sent' && (
-          <p className="text-green-500 mb-4">Frame sent to server.</p>
-        )} */}
         <p className="text-gray-600 mb-4">{recognitionStatus}</p>
+
+        {/* Toggle Button for Entry/Exit */}
+        <button
+          onClick={toggleTripStatus}
+          className={`mb-4 py-2 px-4 rounded-lg w-full ${tripStatus === 'Entry' ? 'bg-green-500' : 'bg-red-500'} text-white`}
+        >
+          Toggle to {tripStatus === 'Entry' ? 'Exit' : 'Entry'}
+        </button>
 
         {/* Reset Button */}
         <button
