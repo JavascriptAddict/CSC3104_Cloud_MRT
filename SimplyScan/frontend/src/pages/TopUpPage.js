@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 
-
 function TopUpPage() {
-  /* const [amount, setAmount] = useState('');
-  const [cardNumber, setCardNumber] = useState('');
-  const [cvv, setCvv] = useState('');
-  const [expiryDate, setExpiryDate] = useState(''); // Combined field for month/year */
+  const [isSuccess, setIsSuccess] = useState(false);
   const [message, setMessage] = useState(''); 
   const [wallet, setWallet] = useState(0);
   const [topupInfo, setTopupInfo] = useState({
@@ -15,9 +11,9 @@ function TopUpPage() {
     cvv: '',
     expiryDate: '', // Combined field for month/year
   });
+
   const fetchWalletInfo = async () => {
     const token = localStorage.getItem('access_token');
-
     if (!token) {
       console.log('You must log in first.');
       return;
@@ -40,7 +36,6 @@ function TopUpPage() {
       const walletData = await wallet.json();
       console.log(walletData.data);
       setWallet(walletData.data);
-      
     } catch (error) {
       console.log('Error fetching wallet information: ' + error.message);
     }
@@ -62,12 +57,26 @@ function TopUpPage() {
       setMessage('You must log in first.');
       return;
     }
-    const [expiryMonth, expiryYear] = expiryDate.split('/'); // Split the MM/YY format
+
+    // Input validations
     if (!amount || !cardNumber || !cvv || !expiryDate) {
       setMessage('Please fill in all the fields.');
+      setIsSuccess(false);
       return;
     }
-  
+    if (isNaN(amount) || amount <= 0) {
+      setMessage('Amount should be a positive number.');
+      setIsSuccess(false);
+      return;
+    }
+    if (cardNumber.length !== 16 || isNaN(cardNumber)) {
+      setMessage('Card number must be a 16-digit number.');
+      setIsSuccess(false);
+      return;
+    }
+
+    const [expiryMonth, expiryYear] = expiryDate.split('/'); // Split the MM/YY format
+
     var newForm = {
       "amount": amount,
       "cardNumber": cardNumber,
@@ -75,6 +84,7 @@ function TopUpPage() {
       "expiryYear": expiryYear,
       "expiryMonth": expiryMonth,
     };
+
     try {
       const response = await fetch('http://localhost/accounts/topup', {
         method: 'POST',
@@ -84,34 +94,29 @@ function TopUpPage() {
           'Content-Type': 'application/json',
         },
       });
+
       if (response.ok) {
         const data = await response.json();
         setMessage(data.message);
+        setIsSuccess(true);
         fetchWalletInfo();
-      } else{
+      } else {
         const data = await response.json();
-        // Check if data.detail is an object
         if (typeof data.detail === 'object' && data.detail !== null) {
-          // Optionally, convert it to a string if it's an object
-          setMessage(JSON.stringify(data.detail)); // You may want to format this differently
+          setMessage(JSON.stringify(data.detail)); // Format error details if object
         } else {
           setMessage(data.detail); // Assuming it's a string
         }
-        return;
       }
     } catch (error) {
       console.error('Error:', error);
       setMessage('Failed to top up balance');
     }
   };
-  
 
   return (
     <div className="flex">
-      {/* Sidebar */}
       <Sidebar />
-
-      {/* Main Content */}
       <div className="ml-64 p-8 w-full bg-blue-200 min-h-screen flex justify-center items-center">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-2xl font-bold mb-4 text-gray-800">Top Up Balance</h2>
@@ -156,7 +161,11 @@ function TopUpPage() {
             Top Up
           </button>
 
-          {message && <p className="mt-4 text-center">{message}</p>}
+          <p
+              className={`mt-4 text-center ${isSuccess ? 'text-green-500' : 'text-red-500'}`}
+            >
+              {message}
+            </p>
         </div>
       </div>
     </div>

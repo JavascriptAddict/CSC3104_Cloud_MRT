@@ -15,7 +15,6 @@ function ProfilePage() {
   const [saveMessage, setSaveMessage] = useState('');
   const [error, setError] = useState('');
   
-
   useEffect(() => {
     const fetchUserInfo = async () => {
       const token = localStorage.getItem('access_token');
@@ -72,6 +71,11 @@ function ProfilePage() {
 
     fetchUserInfo();
   }, []);
+
+  const maskNRIC = (nric) => {
+    if (nric.length < 2) return nric;
+    return `${nric[0]}${'*'.repeat(nric.length - 2)}${nric[nric.length - 1]}`;
+  };
 
   const handleUpload = (e) => {
     const file = e.target.files[0];
@@ -152,7 +156,7 @@ function ProfilePage() {
           <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">Wallet Balance: ${userInfo.wallet}</div>
           <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">Username: {userInfo.username}</div>
           <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">Name: {userInfo.name}</div>
-          <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">NRIC: {userInfo.nric}</div>
+          <div className="block w-full p-3 border border-gray-300 rounded-lg mb-4">NRIC: {maskNRIC(userInfo.nric)}</div>
           <div>Change password</div>
           <input
             type="password"
