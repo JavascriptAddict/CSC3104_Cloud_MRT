@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: api-gateway
-        image: drjoelkoh/api-gateway:latest
+        image: kuanyong652/api-gateway:latest
         ports:
         - containerPort: 8080  # Replace with your API Gateway’s exposed port
         env:

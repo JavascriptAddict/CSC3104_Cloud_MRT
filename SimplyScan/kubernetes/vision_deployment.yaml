@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: vision-service
-        image: drjoelkoh/vision-service:latest
+        image: kuanyong652/vision-service:latest
         ports:
           - containerPort: 50054
         env:

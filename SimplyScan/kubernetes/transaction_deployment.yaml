@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: transaction-service
-        image: drjoelkoh/transaction-service:latest
+        image: kuanyong652/transaction-service:latest
         ports:
           - containerPort: 50052
         env:

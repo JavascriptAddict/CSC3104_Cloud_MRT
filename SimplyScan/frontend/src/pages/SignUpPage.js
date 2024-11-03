@@ -72,13 +72,23 @@ function SignUpPage() {
       if (!response.ok) {
           throw new Error('Network response was not ok');
       }
-
-      const data = await response.json();
-      setSuccessMessage(data.message);
-
-      // Redirect or handle success
+      else if (response.ok) {
+        const data = await response.json();
+        
+        console.log(data.message);
+        if (data.message === 'Account created') {
+          console.log('Account created');
+          setSuccessMessage(data.message);
+          // Redirect or handle success
+          setTimeout(() => {
+            navigate('/');
+          }, 2000);
+        } else {
+          setError(data.message);
+        }
+        /* navigate('/'); */
+      }
       
-      navigate('/');
       
     } catch (error) {
         setError('Sign up failed: ' + error.message);

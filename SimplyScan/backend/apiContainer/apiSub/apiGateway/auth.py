@@ -42,6 +42,7 @@ async def getCurrentUser(token: str = Depends(OAUTH2_SCHEME)):
     except JWTError:
         raise credentialsException
     user = await getAccountById(tokenData.userId)
+    print(tokenData.userId)
     if user is None:
         raise credentialsException
     return user

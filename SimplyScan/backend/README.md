@@ -42,13 +42,13 @@ pip install -r requirements.txt
 
 ### Run the codes in 4 separate powershells all in virtual environment
 - Run as a module from package 
-- python -m SimplyGoPlus.accountService.main
-- python -m SimplyGoPlus.transactionService.main
-- python -m SimplyGoPlus.tripService.main
-- python -m SimplyGoPlus.visionService.main
+- python -m SimplyScan.backend.accountContainer.accountSub.accountService.main
+- python -m SimplyScan.backend.transactionContainer.transactionSub.transactionService.main
+- python -m SimplyScan.backend.tripContainer.tripSub.tripService.main
+- python -m SimplyScan.backend.visionContainer.visionSub.visionService.main
 
 ### Run API Gateway in a separate powershell in virtual environment
-- uvicorn SimplyGoPlus.apiGateway.main:app --host 0.0.0.0 --port 80
+- uvicorn SimplyScan.backend.apiContainer.apiSub.apiGateway.main:app --host 0.0.0.0 --port 80
 
 #### To kill a port in cmd
 - netstat -ano | findstr :<port number>
