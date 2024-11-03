@@ -16,7 +16,7 @@ spec:
       - name: trip-service
         image: drjoelkoh/trip-service:latest
         ports:
-          - containerPort: 5002
+          - containerPort: 50053
         env:
           - name: TRIP_DATABASE_URL
             valueFrom:
@@ -34,5 +34,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 5002
+      targetPort: 50053
   type: ClusterIP

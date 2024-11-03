@@ -16,7 +16,7 @@ spec:
       - name: vision-service
         image: drjoelkoh/vision-service:latest
         ports:
-          - containerPort: 5003
+          - containerPort: 50054
         env:
           - name: VISION_DATABASE_URL
             valueFrom:
@@ -34,5 +34,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 5003
+      targetPort: 50054
   type: ClusterIP
