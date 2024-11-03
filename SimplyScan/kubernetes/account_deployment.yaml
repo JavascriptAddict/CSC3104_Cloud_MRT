@@ -35,5 +35,4 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 5000
-      nodePort: 30002  # Choose an available port on the node
-  type: NodePort
+  type: ClusterIP

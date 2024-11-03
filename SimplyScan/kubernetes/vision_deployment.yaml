@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: vision-service
-        image: your-docker-username/vision-service:latest
+        image: drjoelkoh/vision-service:latest
         ports:
           - containerPort: 5003
         env:

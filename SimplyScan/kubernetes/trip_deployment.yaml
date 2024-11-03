@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: trip-service
-        image: your-docker-username/trip-service:latest
+        image: drjoelkoh/trip-service:latest
         ports:
           - containerPort: 5002
         env:
