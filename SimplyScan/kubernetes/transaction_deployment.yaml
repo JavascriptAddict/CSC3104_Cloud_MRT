@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: transaction-service
-        image: your-docker-username/transaction-service:latest
+        image: drjoelkoh/transaction-service:latest
         ports:
           - containerPort: 5001
         env:
@@ -35,4 +35,5 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 5001
-  type: ClusterIP
+      nodePort: 30001  # Choose an available port on the node
+  type: NodePort
