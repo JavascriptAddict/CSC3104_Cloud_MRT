@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: account-service
-        image: your-docker-username/account-service:latest
+        image: drjoelkoh/account-service:latest
         ports:
           - containerPort: 5000
         env:
@@ -35,4 +35,5 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 5000
-  type: ClusterIP
+      nodePort: 30002  # Choose an available port on the node
+  type: NodePort
