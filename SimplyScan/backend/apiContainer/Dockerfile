@@ -15,8 +15,8 @@ RUN apt-get update && apt-get install -y cmake build-essential libgl1-mesa-glx l
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port 80 to the outside
-EXPOSE 80
+# Expose port 8080 to the outside
+EXPOSE 8080
 
 # Run the API gateway using uvicorn
-CMD ["uvicorn", "apiSub.apiGateway.main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "apiSub.apiGateway.main:app", "--host", "0.0.0.0", "--port", "8080"]
