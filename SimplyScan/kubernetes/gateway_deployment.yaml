@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: api-gateway
-        image: your-docker-username/api-gateway:latest
+        image: drjoelkoh/api-gateway:latest
         ports:
         - containerPort: 8080  # Replace with your API Gateway’s exposed port
         env:
@@ -44,7 +44,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: api-gateway-loadbalancer
+  name: api-gateway-service
 spec:
   selector:
     app: api-gateway  # This label should match the label in your deployment
@@ -53,4 +53,4 @@ spec:
   - protocol: TCP
     port: 80  # External port for users to access the gateway
     targetPort: 8080  # Port the gateway container is listening on
-  sessionAffinity: ClientIP  # Optional: Use this for session persistence
+  
