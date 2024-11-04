@@ -15,7 +15,7 @@ function HistoryPage() {
 
       try {
         // GET TRANSACTION HISTORY
-        const transactionResponse = await fetch(`http://localhost/transactions`, {
+        const transactionResponse = await fetch(`http://localhost:8080/transactions`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -32,7 +32,7 @@ function HistoryPage() {
         setTransactionInfo(transactionData.data.transactions || []); // Fallback to empty array if undefined
 
         // GET TRIP HISTORY
-        const tripResponse = await fetch(`http://localhost/trips`, {
+        const tripResponse = await fetch(`http://localhost:8080/trips`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,

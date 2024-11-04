@@ -1,7 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as faceapi from 'face-api.js';
+import { useNavigate } from 'react-router-dom';
 
 function GantryPage() {
+  const navigate = useNavigate();
   const [recognitionStatus, setRecognitionStatus] = useState(null);
   const [gateStatus, setGateStatus] = useState('Closed');
   const [entryName, setEntryName] = useState('Punggol MRT');
@@ -9,16 +11,16 @@ function GantryPage() {
   const [tripStatus, setTripStatus] = useState(
     localStorage.getItem('tripStatus') || 'Entry'
   );
-  const [isGateOpen, setIsGateOpen] = useState(false); // New state for gate control
+  const [isGateOpen, setIsGateOpen] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const intervalRef = useRef(null);
 
   useEffect(() => {
     const loadModels = async () => {
-      await faceapi.nets.tinyFaceDetector.loadFromUri('/models/weights');
-      await faceapi.nets.faceLandmark68Net.loadFromUri('/models/weights');
-      await faceapi.nets.faceRecognitionNet.loadFromUri('/models/weights');
+      await faceapi.nets.tinyFaceDetector.loadFromUri('../public/models/weights');
+      await faceapi.nets.faceLandmark68Net.loadFromUri('../public/models/weights');
+      await faceapi.nets.faceRecognitionNet.loadFromUri('../public/models/weights');
       startVideo();
     };
 
@@ -28,9 +30,11 @@ function GantryPage() {
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
             videoRef.current.onloadedmetadata = () => {
-              canvasRef.current.width = videoRef.current.videoWidth;
-              canvasRef.current.height = videoRef.current.videoHeight;
-              startFaceDetection();
+              if (canvasRef.current) {
+                canvasRef.current.width = videoRef.current.videoWidth;
+                canvasRef.current.height = videoRef.current.videoHeight;
+                startFaceDetection();
+              }
             };
           }
         })
@@ -38,11 +42,18 @@ function GantryPage() {
     };
 
     loadModels();
-
-    return () => clearInterval(intervalRef.current);
+    //startVideo();
+    // Clean up video stream when component unmounts or user navigates away
+    return () => {
+      stopVideoStream();
+    };
   }, []);
 
   const handleScanFace = async () => {
+    if (!canvasRef.current || !videoRef.current) {
+      return;
+    }
+
     const startTime = performance.now();
 
     const detections = await faceapi.detectAllFaces(
@@ -50,18 +61,22 @@ function GantryPage() {
       new faceapi.TinyFaceDetectorOptions()
     ).withFaceLandmarks().withFaceDescriptors();
 
-    const endTime = performance.now(); // End timer
-    const timeTaken = endTime - startTime; // Calculate time taken
+    const endTime = performance.now();
+    const timeTaken = endTime - startTime;
 
-    console.log(`Time taken to detect face: ${timeTaken.toFixed(2)} ms`); // Log time taken
+    console.log(`Time taken to detect face: ${timeTaken.toFixed(2)} ms`);
+
     const ctx = canvasRef.current.getContext('2d');
-    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    if (ctx) {
+      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    } else {
+      console.error("Failed to get canvas context");
+      return;
+    }
 
     if (detections.length > 0) {
       console.log('Face detected:', detections);
       faceapi.draw.drawDetections(canvasRef.current, detections);
-      
-      // Capture the frame and send it to the API
       captureFrame();
     } else {
       console.log('No face detected');
@@ -70,6 +85,8 @@ function GantryPage() {
   };
 
   const captureFrame = async () => {
+    if (!videoRef.current) return;
+
     const canvas = document.createElement('canvas');
     canvas.width = videoRef.current.videoWidth;
     canvas.height = videoRef.current.videoHeight;
@@ -81,7 +98,7 @@ function GantryPage() {
   };
 
   const sendFrameToAPI = async (frameData) => {
-    if (isGateOpen) return; // Prevent action if the gate is open
+    if (isGateOpen) return;
 
     console.log("Attempting to send frame to API...");
     
@@ -95,13 +112,13 @@ function GantryPage() {
       if (tripStatus === 'Entry') {
         console.log('Entering station:', entryName);
         formData.append('entry', entryName);
-        response = await fetch(`http://localhost/gantry/tripStart?entry=${entryName}`, {
+        response = await fetch(`http://localhost:8080/gantry/tripStart?entry=${entryName}`, {
           method: 'POST',
           body: formData,
         });
       } else {
         console.log('Exiting station:', exitName);
-        response = await fetch(`http://localhost/gantry/tripEnd?exit=${exitName}`, {
+        response = await fetch(`http://localhost:8080/gantry/tripEnd?exit=${exitName}`, {
           method: 'PUT',
           body: formData,
         });
@@ -113,21 +130,20 @@ function GantryPage() {
         setRecognitionStatus(responseData.message);
         if (responseData.message === 'Trip created' || responseData.message === 'Trip ended') {
           setGateStatus('Open');
-          setIsGateOpen(true); // Set gate to open
+          setIsGateOpen(true);
           setTimeout(() => {
-            setGateStatus('Closed'); // Set gate back to closed after delay
-            setIsGateOpen(false); // Reset gate state
-          }, 3000); // Delay for 3 seconds (change as needed)
+            setGateStatus('Closed');
+            setIsGateOpen(false);
+          }, 3000);
         }
       } else {
-        var errData = await response.json();
+        const errData = await response.json();
         console.log("Failed to send frame", errData);
         setRecognitionStatus(errData.detail);
         throw new Error("Failed to send frame");
       }
     } catch (error) {
       console.error("Error sending frame:", error);
-      
     }
   };
 
@@ -137,6 +153,27 @@ function GantryPage() {
     }, 1000);
     console.log('Starting face detection...');
   };
+
+  const stopVideoStream = () => {
+    clearInterval(intervalRef.current);
+  
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject;
+      const tracks = stream.getTracks();
+      tracks.forEach((track) => {
+        track.stop();
+        console.log(`Stopped track: ${track.kind}`);
+      });
+      videoRef.current.srcObject = null;
+      console.log("Camera has been forcefully disabled.");
+    }
+  
+    // Attempt to reset camera permissions
+    navigator.mediaDevices.getUserMedia({ video: false }).catch(() => {
+      console.log("Camera permissions have been reset.");
+    });
+  };
+  
 
   const handleReset = () => {
     setRecognitionStatus(null);
@@ -154,6 +191,11 @@ function GantryPage() {
       
       return newStatus;
     });
+  };
+
+  const goToLogin = () => {
+    stopVideoStream(); // Ensure the video stream stops when navigating away
+    setTimeout(() => navigate('/'), 50); // Slight delay to ensure stream stops before navigation
   };
 
   return (
@@ -187,9 +229,16 @@ function GantryPage() {
 
         <button
           onClick={handleReset}
-          className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300 w-full"
+          className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300 w-full mb-4"
         >
           Reset
+        </button>
+
+        <button
+          onClick={goToLogin}
+          className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300 w-full"
+        >
+          Back to Login
         </button>
       </div>
     </div>

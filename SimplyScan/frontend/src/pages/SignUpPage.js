@@ -62,7 +62,7 @@ function SignUpPage() {
 
 
     try {
-      const response = await fetch(`http://localhost/accounts/create?name=${name}&nric=${nric}&username=${username}&password=${password}`, {
+      const response = await fetch(`http://localhost:8080/accounts/create?name=${name}&nric=${nric}&username=${username}&password=${password}`, {
           method: 'POST',
           body: formData,
           
@@ -93,12 +93,6 @@ function SignUpPage() {
     } catch (error) {
         setError('Sign up failed: ' + error.message);
     }
-
-    // Mock sign-up logic
-    /* setSuccessMessage('Sign up successful! Redirecting...');
-    setTimeout(() => {
-      navigate('/profile');
-    }, 1500); */
   };
 
   return (

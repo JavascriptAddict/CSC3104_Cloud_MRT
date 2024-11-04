@@ -21,15 +21,6 @@ function LoginPage() {
     setLoginError('');
     setLoginSuccess('');
 
-    /* if (username === 'hi' && password === 'hi') {
-      setLoginSuccess('Login successful! Redirecting...');
-      setTimeout(() => {
-        navigate('/profile');
-      }, 1500);
-    } else {
-      setLoginError('Invalid credentials. Please try again.');
-    } */
-
     const {username, password} = userLogin;
     if (!username || !password) {
       setLoginError('Please fill in all the fields.');
@@ -41,7 +32,7 @@ function LoginPage() {
     newForm.append('password', password);
 
     try {
-      const response = await fetch('http://localhost/token', { 
+      const response = await fetch('http://localhost:8080/token', { 
           method: 'POST',
           body: newForm,
           headers: {
