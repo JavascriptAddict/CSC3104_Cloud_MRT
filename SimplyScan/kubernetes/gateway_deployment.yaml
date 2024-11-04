@@ -47,10 +47,10 @@ metadata:
   name: api-gateway-service
 spec:
   selector:
-    app: api-gateway  # This label should match the label in your deployment
+    app: api-gateway  
   type: LoadBalancer
   ports:
   - protocol: TCP
-    port: 80  # External port for users to access the gateway
-    targetPort: 8080  # Port the gateway container is listening on
+    port: 80  
+    targetPort: 8080 
   
