@@ -32,7 +32,7 @@ function LoginPage() {
     newForm.append('password', password);
 
     try {
-      const response = await fetch('http://localhost/token', { 
+      const response = await fetch('http://localhost:8080/token', { 
           method: 'POST',
           body: newForm,
           headers: {

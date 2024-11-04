@@ -25,7 +25,7 @@ function ProfilePage() {
       }
 
       try {
-        const response = await fetch(`http://localhost/accounts`, {
+        const response = await fetch(`http://localhost:8080/accounts`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -41,7 +41,7 @@ function ProfilePage() {
         const data = await response.json();
         console.log(data);
 
-        const wallet = await fetch(`http://localhost/accounts/checkwallet`, {
+        const wallet = await fetch(`http://localhost:8080/accounts/checkwallet`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -105,7 +105,7 @@ function ProfilePage() {
     };
 
     try {
-      const response = await fetch(`http://localhost/accounts`, {
+      const response = await fetch(`http://localhost:8080/accounts`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -123,7 +123,7 @@ function ProfilePage() {
         const formData = new FormData();
         formData.append('image', image);
 
-        const uploadResponse = await fetch(`http://localhost/accounts/image/upload`, {
+        const uploadResponse = await fetch(`http://localhost:8080/accounts/image/upload`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,

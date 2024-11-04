@@ -24,7 +24,7 @@ function TopUpPage() {
     }
 
     try {
-      const wallet = await fetch(`http://localhost/accounts/checkwallet`, {
+      const wallet = await fetch(`http://localhost:8080/accounts/checkwallet`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -76,7 +76,7 @@ function TopUpPage() {
       "expiryMonth": expiryMonth,
     };
     try {
-      const response = await fetch('http://localhost/accounts/topup', {
+      const response = await fetch('http://localhost:8080/accounts/topup', {
         method: 'POST',
         body: JSON.stringify(newForm),
         headers: {
