@@ -41,19 +41,19 @@ function GantryPage() {
 
     loadModels();
 
-    return () => {
-      clearInterval(intervalRef.current);
-      stopVideoStream();
-    };
+    return () => stopVideoStream(); // Stop video stream when component unmounts
   }, []);
 
   const stopVideoStream = () => {
+    // Stop face detection interval
+    clearInterval(intervalRef.current);
+    //the interval would keep running and calling handleScanFace() even if the component is no longer on the screen, which could lead to performance issues or errors,
+    // Stop camera stream
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject;
       const tracks = stream.getTracks();
-
-      tracks.forEach(track => track.stop());
-      videoRef.current.srcObject = null;
+      tracks.forEach((track) => track.stop());
+      videoRef.current.srcObject = null; // Clear the video element's source
     }
   };
 
@@ -133,7 +133,7 @@ function GantryPage() {
           }, 3000);
         }
       } else {
-        var errData = await response.json();
+        const errData = await response.json();
         console.log("Failed to send frame", errData);
         setRecognitionStatus(errData.detail);
         throw new Error("Failed to send frame");
@@ -169,8 +169,7 @@ function GantryPage() {
   };
 
   const goToLogin = () => {
-    clearInterval(intervalRef.current);
-    stopVideoStream();
+    stopVideoStream(); // Stop the video stream immediately
     navigate('/');
   };
 
@@ -210,6 +209,7 @@ function GantryPage() {
           Reset
         </button>
 
+        {/* Back to Login Button */}
         <button
           onClick={goToLogin}
           className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300 w-full"
