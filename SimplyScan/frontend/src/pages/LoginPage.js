@@ -21,15 +21,6 @@ function LoginPage() {
     setLoginError('');
     setLoginSuccess('');
 
-    /* if (username === 'hi' && password === 'hi') {
-      setLoginSuccess('Login successful! Redirecting...');
-      setTimeout(() => {
-        navigate('/profile');
-      }, 1500);
-    } else {
-      setLoginError('Invalid credentials. Please try again.');
-    } */
-
     const {username, password} = userLogin;
     if (!username || !password) {
       setLoginError('Please fill in all the fields.');
