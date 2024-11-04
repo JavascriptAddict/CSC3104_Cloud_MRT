@@ -1,7 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as faceapi from 'face-api.js';
+import { useNavigate } from 'react-router-dom';
 
 function GantryPage() {
+  const navigate = useNavigate();
   const [recognitionStatus, setRecognitionStatus] = useState(null);
   const [gateStatus, setGateStatus] = useState('Closed');
   const [entryName, setEntryName] = useState('Punggol MRT');
@@ -9,7 +11,7 @@ function GantryPage() {
   const [tripStatus, setTripStatus] = useState(
     localStorage.getItem('tripStatus') || 'Entry'
   );
-  const [isGateOpen, setIsGateOpen] = useState(false); // New state for gate control
+  const [isGateOpen, setIsGateOpen] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const intervalRef = useRef(null);
@@ -39,8 +41,21 @@ function GantryPage() {
 
     loadModels();
 
-    return () => clearInterval(intervalRef.current);
+    return () => {
+      clearInterval(intervalRef.current);
+      stopVideoStream();
+    };
   }, []);
+
+  const stopVideoStream = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject;
+      const tracks = stream.getTracks();
+
+      tracks.forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+  };
 
   const handleScanFace = async () => {
     const startTime = performance.now();
@@ -50,18 +65,16 @@ function GantryPage() {
       new faceapi.TinyFaceDetectorOptions()
     ).withFaceLandmarks().withFaceDescriptors();
 
-    const endTime = performance.now(); // End timer
-    const timeTaken = endTime - startTime; // Calculate time taken
+    const endTime = performance.now();
+    const timeTaken = endTime - startTime;
 
-    console.log(`Time taken to detect face: ${timeTaken.toFixed(2)} ms`); // Log time taken
+    console.log(`Time taken to detect face: ${timeTaken.toFixed(2)} ms`);
     const ctx = canvasRef.current.getContext('2d');
     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
 
     if (detections.length > 0) {
       console.log('Face detected:', detections);
       faceapi.draw.drawDetections(canvasRef.current, detections);
-      
-      // Capture the frame and send it to the API
       captureFrame();
     } else {
       console.log('No face detected');
@@ -81,7 +94,7 @@ function GantryPage() {
   };
 
   const sendFrameToAPI = async (frameData) => {
-    if (isGateOpen) return; // Prevent action if the gate is open
+    if (isGateOpen) return;
 
     console.log("Attempting to send frame to API...");
     
@@ -113,11 +126,11 @@ function GantryPage() {
         setRecognitionStatus(responseData.message);
         if (responseData.message === 'Trip created' || responseData.message === 'Trip ended') {
           setGateStatus('Open');
-          setIsGateOpen(true); // Set gate to open
+          setIsGateOpen(true);
           setTimeout(() => {
-            setGateStatus('Closed'); // Set gate back to closed after delay
-            setIsGateOpen(false); // Reset gate state
-          }, 3000); // Delay for 3 seconds (change as needed)
+            setGateStatus('Closed');
+            setIsGateOpen(false);
+          }, 3000);
         }
       } else {
         var errData = await response.json();
@@ -127,7 +140,6 @@ function GantryPage() {
       }
     } catch (error) {
       console.error("Error sending frame:", error);
-      
     }
   };
 
@@ -154,6 +166,12 @@ function GantryPage() {
       
       return newStatus;
     });
+  };
+
+  const goToLogin = () => {
+    clearInterval(intervalRef.current);
+    stopVideoStream();
+    navigate('/');
   };
 
   return (
@@ -187,9 +205,16 @@ function GantryPage() {
 
         <button
           onClick={handleReset}
-          className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300 w-full"
+          className="bg-gray-500 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300 w-full mb-4"
         >
           Reset
+        </button>
+
+        <button
+          onClick={goToLogin}
+          className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300 w-full"
+        >
+          Back to Login
         </button>
       </div>
     </div>
