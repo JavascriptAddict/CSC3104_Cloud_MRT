@@ -18,9 +18,9 @@ function GantryPage() {
 
   useEffect(() => {
     const loadModels = async () => {
-      await faceapi.nets.tinyFaceDetector.loadFromUri('../public/models/weights');
-      await faceapi.nets.faceLandmark68Net.loadFromUri('../public/models/weights');
-      await faceapi.nets.faceRecognitionNet.loadFromUri('../public/models/weights');
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/models/weights/');
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/models/weights/');
+      await faceapi.nets.tinyFaceDetector.loadFromUri('/models/weights/');
       startVideo();
     };
 
