@@ -66,7 +66,7 @@ function LoginPage() {
     <div className="h-screen flex justify-center items-center bg-blue-300">
       <form className="p-10 bg-white rounded-lg shadow-lg w-full max-w-sm">
         <h1 className="text-2xl font-semibold text-center mb-6 text-gray-800">
-          Welcome to SMRT
+          Welcome to SimplyScan
         </h1>
 
         {/* username Input */}

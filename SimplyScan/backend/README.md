@@ -48,7 +48,7 @@ pip install -r requirements.txt
 - python -m SimplyScan.backend.visionContainer.visionSub.visionService.main
 
 ### Run API Gateway in a separate powershell in virtual environment
-- uvicorn SimplyScan.backend.apiContainer.apiSub.apiGateway.main:app --host 0.0.0.0 --port 80
+- uvicorn SimplyScan.backend.apiContainer.apiSub.apiGateway.main:app --host 0.0.0.0 --port 8080
 
 #### To kill a port in cmd
 - netstat -ano | findstr :<port number>
