@@ -1,9 +1,9 @@
-# Use Node.js to build the frontend
+# Stage 1: Build the React frontend
 FROM node:18 AS build
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json first to leverage Docker cache
+# Copy package.json and package-lock.json for dependency installation
 COPY package.json package-lock.json ./
 
 # Install dependencies
@@ -15,20 +15,25 @@ COPY . .
 # Build the React app
 RUN npm run build
 
-# Use a lightweight Node.js image to serve the app with 'serve'
+# Stage 2: Set up Express to serve the frontend and model files
 FROM node:18-alpine
 
-# Install 'serve' globally
-RUN npm install -g serve
-
-# Set the working directory
 WORKDIR /app
 
-# Copy the build output from the previous stage
+# Copy package.json and package-lock.json to install server dependencies
+COPY package.json package-lock.json ./
+
+# Install only production dependencies (including express)
+RUN npm install --only=production
+
+# Copy the built frontend from the previous stage
 COPY --from=build /app/build /app/build
+
+# Copy the Express server setup file
+COPY server.js .
 
 # Expose port 80
 EXPOSE 80
 
-# Serve the app in production mode
-CMD ["serve", "-s", "build", "-l", "80"]
+# Start the Express server
+CMD ["node", "server.js"]
