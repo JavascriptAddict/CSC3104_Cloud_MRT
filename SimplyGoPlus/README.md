@@ -27,6 +27,7 @@ python -m venv myenv
 cd ..
 ```
 #### Activate the Virtual Environment
+- Note: Run this command in the root folder
 - .\SimplyGoPlus\myenv\Scripts\activate
 
 ## Install Dependencies
@@ -36,16 +37,19 @@ cd ..
 
 ## To run individual services or API Gateway
 ### Activate virtual environment if needed
+- Note: Run this command in the root folder
 - .\SimplyGoPlus\myenv\Scripts\activate
 
 ### Run the codes in 4 separate powershells all in virtual environment
 - Run as a module from package 
+- Note: Run these commands in the root folder
 - python -m SimplyGoPlus.accountService.main
 - python -m SimplyGoPlus.transactionService.main
 - python -m SimplyGoPlus.tripService.main
 - python -m SimplyGoPlus.visionService.main
 
 ### Run API Gateway in a separate powershell in virtual environment
+- Note: Run this command in the root folder
 - uvicorn SimplyGoPlus.apiGateway.main:app --host 0.0.0.0 --port 80
 
 ## Database
