@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: account-service
-        image: kuanyong652/account-service:latest
+        image: drjoelkoh/account-service:latest
         ports:
           - containerPort: 50051
         env:

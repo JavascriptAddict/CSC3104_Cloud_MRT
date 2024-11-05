@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: trip-service
-        image: kuanyong652/trip-service:latest
+        image: drjoelkoh/trip-service:latest
         ports:
           - containerPort: 50053
         env:
