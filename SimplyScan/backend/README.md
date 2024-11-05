@@ -22,12 +22,12 @@
 
 ## Create virtual environment
 ```shell
-cd .\SimplyGoPlus\
+cd .\SimplyScan\
 python -m venv myenv
 cd ..
 ```
 #### Activate the Virtual Environment
-- .\SimplyGoPlus\myenv\Scripts\activate
+- .\SimplyScan\myenv\Scripts\activate
 
 ## Install Dependencies
 ```sh
@@ -38,7 +38,7 @@ pip install -r requirements.txt
 
 ## To run individual services or API Gateway
 ### Activate virtual environment
-- .\SimplyGoPlus\myenv\Scripts\activate
+- .\SimplyScan\myenv\Scripts\activate
 
 ### Run the codes in 4 separate powershells all in virtual environment
 - Run as a module from package 
