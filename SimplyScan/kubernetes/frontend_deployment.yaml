@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: kuanyong652/front-end:latest
+        image: drjoelkoh/front-end:latest
         ports:
           - containerPort: 80
 ---
@@ -25,8 +25,9 @@ metadata:
 spec:
   selector:
     app: frontend
-  type: LoadBalancer
+  type: NodePort
   ports:
     - protocol: TCP
       port: 80
       targetPort: 80
+      nodePort: 32081
