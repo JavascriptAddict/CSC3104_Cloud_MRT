@@ -82,3 +82,48 @@ python -m grpc_tools.protoc -I protos --python_out=./generated --pyi_out=./gener
 - Go to accountContainer 
     - Run 'docker-compose up --build
     - Run 'docker-compose down' to stop the container if needed
+
+
+## To Deploy
+- Make sure to have k3d and Kubectl installed
+- Run your Docker Desktop 
+- Open up command prompt and create a Kubernetes cluster
+    - k3d cluster create simplycluster --agents 2 --port "6443:6443@loadbalancer"
+    - Once created try running kubectl cluster-info to try connecting to Kubernetes
+        - If issue occurs, go inside your config file and change the server "host.docker.internal"
+        - Change it to "http://localhost:6443"
+    - You should be connected to Kubernetes now
+- Start your Kubernetes cluster (if not started)
+    - k3d cluster start simplycluster
+- Create Kubernetes Secrets
+    - For access to account database:
+        - Run 'kubectl create secret generic account-db-secret --from-literal=DATABASE_URL=postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/accountDB?sslmode=require'
+    - For access to transaction database:
+        - Run 'kubectl create secret generic transaction-db-secret --from-literal=DATABASE_URL=postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/transactionDB?sslmode=require'
+    - For access to trip database:
+        - Run 'kubectl create secret generic trip-db-secret --from-literal=DATABASE_URL=postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/tripDB?sslmode=require'
+    - For access to vision database:
+        - Run 'kubectl create secret generic vision-db-secret --from-literal=DATABASE_URL=postgres://avnadmin:AVNS_rOO_xCE2pecb4TH8FOY@cloudmrt-cloudmrt.j.aivencloud.com:19275/visionDB?sslmode=require'
+- Navigate to the Kubernetes directory
+    - To apply the YAML files which includes both deployment and service:
+        - Ensure that the image inside are linked to the Docker images that are pushed in Docker Hub
+        - For Account: Run 'kubectl apply -f account_deployment.yaml'
+        - For Frontend: Run 'kubectl apply -f frontend_deployment.yaml'
+        - For API Gateway: Run 'kubectl apply -f gateway_deployment.yaml'
+        - For Transaction: Run 'kubectl apply -f transaction_deployment.yaml'
+        - For Trip: Run 'kubectl apply -f trip_deployment.yaml'
+        - For Vision: Run 'kubectl apply -f vision_deployment.yaml'
+- Inside your terminal run the following commands to check if the deployments are running
+    - kubectl get deployments
+    - kubectl get pods
+    - kubectl get services
+- Check on the status of the pods if all are running well
+    - If error persists, check on the YAML file configurations or database connections
+    - Use 'kubectl logs <pod-name>' to check the error message of the pod
+- Portforward frontend and gateway
+    - Run 'kubectl port-forward svc/frontend-service 3000:80'
+        - Enter localhost:3000 in your browser and you will see the page loaded
+    - Run 'kubectl port-forward svc/api-gateway-service 8080:80'
+        - Enter localhost:8080/docs to see the documentation page for testing of the API gateway
+
+
