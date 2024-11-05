@@ -30,14 +30,12 @@ cd ..
 - .\SimplyGoPlus\myenv\Scripts\activate
 
 ## Install Dependencies
-```sh
-.\myenv\Scripts\activate
-pip install -r requirements.txt
-```
-
+### Activate Virtual Environment if needed
+- .\SimplyGoPlus\myenv\Scripts\activate
+- pip install -r requirements.txt
 
 ## To run individual services or API Gateway
-### Activate virtual environment
+### Activate virtual environment if needed
 - .\SimplyGoPlus\myenv\Scripts\activate
 
 ### Run the codes in 4 separate powershells all in virtual environment
@@ -49,11 +47,6 @@ pip install -r requirements.txt
 
 ### Run API Gateway in a separate powershell in virtual environment
 - uvicorn SimplyGoPlus.apiGateway.main:app --host 0.0.0.0 --port 80
-
-#### To kill a port in cmd
-- netstat -ano | findstr :<port number>
-- taskkill /PID <pid> /F
-- Hope we never have to use this
 
 ## Database
 - PostgreSQL online aiven database is used
@@ -67,4 +60,3 @@ From inside the SimplyGoPlus folder, invoke this code and change trip to whateve
 ```sh
 python -m grpc_tools.protoc -I protos --python_out=./generated --pyi_out=./generated --grpc_python_out=./generated protos/trip.proto
 ```
-- Make sure to change _pb2_grpc.py files to "from . import account_pb2 as account__pb2" to fix not found error (remove this? I don't even see this)
