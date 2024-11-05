@@ -68,3 +68,17 @@ From inside the SimplyGoPlus folder, invoke this code and change trip to whateve
 python -m grpc_tools.protoc -I protos --python_out=./generated --pyi_out=./generated --grpc_python_out=./generated protos/trip.proto
 ```
 - Make sure to change _pb2_grpc.py files to "from . import account_pb2 as account__pb2" to fix not found error (remove this? I don't even see this)
+
+## To Dockerize
+- For frontend, navigate to frontend directory
+    - Run 'docker build -t frontend_service .'
+    - Run 'docker run --privileged -p 80:80 frontend_service'
+
+- For API Gateway, navigate to apiContainer directory
+    - Run 'docker build -t api_gateway .'
+    - Run 'docker run -p 8080:8080 api_gateway'
+
+- For each microservice, navigate to their respective Container folder and perform the following steps. Let's use accounts for example.
+- Go to accountContainer 
+    - Run 'docker-compose up --build
+    - Run 'docker-compose down' to stop the container if needed
